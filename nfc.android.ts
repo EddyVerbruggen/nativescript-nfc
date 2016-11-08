@@ -312,31 +312,35 @@ export class Nfc implements NfcApi {
   public writeTag(arg: WriteTagOptions): Promise<any> {
     let that = this;
     return new Promise((resolve, reject) => {
-      if (!arg) {
-        reject("Nothing passed to write");
-        return;
-      }
-      let intent = application.android.foregroundActivity.getIntent();
-      if (intent === null || nfcIntentHandler.savedIntent === null) {
-        reject("Can not write to tag; didn't receive an intent");
-        return;
-      }
+      try {
+        if (!arg) {
+          reject("Nothing passed to write");
+          return;
+        }
+        let intent = application.android.foregroundActivity.getIntent();
+        if (intent === null || nfcIntentHandler.savedIntent === null) {
+          reject("Can not write to tag; didn't receive an intent");
+          return;
+        }
 
-      let tag = nfcIntentHandler.savedIntent.getParcelableExtra(android.nfc.NfcAdapter.EXTRA_TAG) as android.nfc.Tag;
-      console.log("write, tag: " + tag);
+        let tag = nfcIntentHandler.savedIntent.getParcelableExtra(android.nfc.NfcAdapter.EXTRA_TAG) as android.nfc.Tag;
+        console.log("write, tag: " + tag);
 
-      let records = that.jsonToNdefRecords(arg);
-      console.log("write, records: " + records);
+        let records = that.jsonToNdefRecords(arg);
+        console.log("write, records: " + records);
 
-      // avoiding a TS issue in the generate Android definitions
-      let ndefClass = android.nfc.NdefMessage as any;
-      let ndefMessage = new ndefClass(records);
+        // avoiding a TS issue in the generate Android definitions
+        let ndefClass = android.nfc.NdefMessage as any;
+        let ndefMessage = new ndefClass(records);
 
-      let errorMessage = that.writeNdefMessage(ndefMessage, tag);
-      if (errorMessage === null) {
-        resolve();
-      } else {
-        reject(errorMessage);
+        let errorMessage = that.writeNdefMessage(ndefMessage, tag);
+        if (errorMessage === null) {
+          resolve();
+        } else {
+          reject(errorMessage);
+        }
+      } catch (ex) {
+        reject(ex);
       }
     });
   };
@@ -357,7 +361,13 @@ export class Nfc implements NfcApi {
       return null;
     }
 
-    ndef.connect();
+    try {
+      ndef.connect();
+    } catch (e) {
+      console.log("ndef connection error: " + e);
+      return "connection failed";
+    }
+
     console.log("nfed connected");
 
     if (!ndef.isWritable()) {

@@ -1,5 +1,27 @@
 <Page xmlns="http://schemas.nativescript.org/tns.xsd" loaded="pageLoaded">
-  <StackLayout>
-    <Label text="{{ message }}" class="message" textWrap="true"/>
-  </StackLayout>
+  <ScrollView>
+    <StackLayout>
+
+      <Image margin="0" src="~/res/nfc.png" width="60%" align="center" />
+
+      <StackLayout orientation="horizontal" width="100%">
+        <Button text="NFC available?" tap="{{ doCheckAvailable }}" cssClass="button button-a" width="40%" />
+        <Button text="NFC enabled?" tap="{{ doCheckEnabled }}" cssClass="button button-a" width="40%" align="right" />
+      </StackLayout>
+
+      <StackLayout orientation="horizontal" width="100%">
+        <Button text="start listening" tap="{{ doStartListening }}" cssClass="button" width="40%"/>
+        <Button text="stop listening" tap="{{ doStopListening }}" cssClass="button" width="40%" align="right"/>
+      </StackLayout>
+
+      <StackLayout orientation="horizontal" width="100%">
+        <Button text="write 'Hello'" tap="{{ doWriteHello }}" cssClass="button button-b" width="40%" />
+        <!--<Button text="write 'Goodbye'" tap="{{ doWriteGoodbye }}" cssClass="button button-b" width="40%" align="right" />-->
+        <Button text="erase tag" tap="{{ doEraseTag }}" cssClass="button button-c" width="40%" align="right" />
+      </StackLayout>
+
+      <Label text="{{ lastNfcTagRead }}" cssClass="message" />
+
+    </StackLayout>
+  </ScrollView>
 </Page>

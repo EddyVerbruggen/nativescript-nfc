@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="__PACKAGE__"
+	package="com.nativescript.plugindemo.nfc"
 	android:versionCode="1"
 	android:versionName="1.0">
 
@@ -27,7 +27,7 @@
 
 		<activity
 			android:name="com.tns.NativeScriptActivity"
-			android:label="@string/title_activity_kimera"
+			android:label="NFC"
 			android:configChanges="keyboardHidden|orientation|screenSize"
 			android:theme="@style/LaunchScreenTheme">
 

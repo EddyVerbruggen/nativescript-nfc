@@ -1,23 +1,66 @@
-import * as app from "application";
-import * as dialogs from "ui/dialogs";
-
-export class Common {
-  public message: string;
-
-  constructor() {
-    this.message = Utils.SUCCESS_MSG();
-  }
+export interface TextRecord {
+  /**
+   * String of text to encode.
+   */
+  text: string;
+  /**
+   * ISO/IANA language code. Examples: 'fi', 'en-US'.
+   * Default 'en'.
+   */
+  languageCode?: string;
+  /**
+   * Default [].
+   */
+  id?: Array<number>;
 }
 
-export class Utils {
-  public static SUCCESS_MSG(): string {
-    let msg = `Your plugin is working on ${app.android ? "Android" : "iOS"}.`;
-
-    setTimeout(() => {
-      dialogs.alert(`${msg} For real. It's really working :)`).then(() => console.log(`Dialog closed.`));
-    }, 2000);
-
-    return msg;
-  }
+export interface WriteTagOptions {
+  textRecords?: Array<TextRecord>;
 }
 
+export interface NfcApi {
+  available(): Promise<boolean>;
+  enabled(): Promise<boolean>;
+  startListening(): Promise<any>;
+  stopListening(): Promise<any>;
+  writeTag(arg: WriteTagOptions): Promise<any>;
+  eraseTag(): Promise<any>;
+}
+
+export class Common implements NfcApi {
+  public available(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      resolve(false);
+    });
+  };
+
+  public enabled(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      resolve(false);
+    });
+  };
+
+  public startListening(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      resolve();
+    });
+  };
+
+  public stopListening(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      resolve();
+    });
+  };
+
+  public writeTag(arg: WriteTagOptions): Promise<any> {
+    return new Promise((resolve, reject) => {
+      resolve();
+    });
+  };
+
+  public eraseTag(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      resolve();
+    });
+  };
+}

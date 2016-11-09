@@ -30,11 +30,19 @@ export interface WriteTagOptions {
   uriRecords?: Array<UriRecord>;
 }
 
+export interface NfcTagData {
+  id: Array<number>;
+  techList?: Array<string>;
+}
+
 export interface NfcApi {
   available(): Promise<boolean>;
   enabled(): Promise<boolean>;
-  startListening(): Promise<any>;
-  stopListening(): Promise<any>;
+  /**
+   * Set to null to remove the listener.
+   */
+  setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any>;
+  // removeOnTagDiscoveredListener(): Promise<any>;
   writeTag(arg: WriteTagOptions): Promise<any>;
   eraseTag(): Promise<any>;
 }
@@ -52,7 +60,7 @@ export class Common implements NfcApi {
     });
   };
 
-  public startListening(): Promise<any> {
+  public setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any> {
     return new Promise((resolve, reject) => {
       resolve();
     });

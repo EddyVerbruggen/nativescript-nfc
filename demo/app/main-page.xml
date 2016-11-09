@@ -10,8 +10,8 @@
       </StackLayout>
 
       <StackLayout orientation="horizontal" width="100%">
-        <Button text="start listening" tap="{{ doStartListening }}" cssClass="button" width="40%"/>
-        <Button text="stop listening" tap="{{ doStopListening }}" cssClass="button" width="40%" align="right"/>
+        <Button text="start tag discovery" tap="{{ doStartListeningForTagDiscovery }}" cssClass="button" width="40%"/>
+        <Button text="stop tag discovery" tap="{{ doStopListeningForTagDiscovery }}" cssClass="button" width="40%" align="right"/>
       </StackLayout>
 
       <StackLayout orientation="horizontal" width="100%">

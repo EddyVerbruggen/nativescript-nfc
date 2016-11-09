@@ -14,8 +14,20 @@ export interface TextRecord {
   id?: Array<number>;
 }
 
+export interface UriRecord {
+  /**
+   * String representing the uri to encode.
+   */
+  uri: string;
+  /**
+   * Default [].
+   */
+  id?: Array<number>;
+}
+
 export interface WriteTagOptions {
   textRecords?: Array<TextRecord>;
+  uriRecords?: Array<UriRecord>;
 }
 
 export interface NfcApi {

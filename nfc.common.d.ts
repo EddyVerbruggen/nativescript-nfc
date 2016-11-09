@@ -3,8 +3,13 @@ export interface TextRecord {
     languageCode?: string;
     id?: Array<number>;
 }
+export interface UriRecord {
+    uri: string;
+    id?: Array<number>;
+}
 export interface WriteTagOptions {
     textRecords?: Array<TextRecord>;
+    uriRecords?: Array<UriRecord>;
 }
 export interface NfcApi {
     available(): Promise<boolean>;

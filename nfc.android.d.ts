@@ -1,4 +1,4 @@
-import { NfcApi, WriteTagOptions } from "./nfc.common";
+import { NfcApi, NfcTagData, WriteTagOptions } from "./nfc.common";
 export declare class Nfc implements NfcApi {
     private pendingIntent;
     private intentFilters;
@@ -6,8 +6,7 @@ export declare class Nfc implements NfcApi {
     constructor();
     available(): Promise<boolean>;
     enabled(): Promise<boolean>;
-    startListening(): Promise<any>;
-    stopListening(): Promise<any>;
+    setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any>;
     eraseTag(): Promise<any>;
     writeTag(arg: WriteTagOptions): Promise<any>;
     private writeNdefMessage(message, tag);

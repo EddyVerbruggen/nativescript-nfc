@@ -11,18 +11,21 @@ export interface WriteTagOptions {
     textRecords?: Array<TextRecord>;
     uriRecords?: Array<UriRecord>;
 }
+export interface NfcTagData {
+    id: Array<number>;
+    techList?: Array<string>;
+}
 export interface NfcApi {
     available(): Promise<boolean>;
     enabled(): Promise<boolean>;
-    startListening(): Promise<any>;
-    stopListening(): Promise<any>;
+    setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any>;
     writeTag(arg: WriteTagOptions): Promise<any>;
     eraseTag(): Promise<any>;
 }
 export declare class Common implements NfcApi {
     available(): Promise<boolean>;
     enabled(): Promise<boolean>;
-    startListening(): Promise<any>;
+    setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any>;
     stopListening(): Promise<any>;
     writeTag(arg: WriteTagOptions): Promise<any>;
     eraseTag(): Promise<any>;

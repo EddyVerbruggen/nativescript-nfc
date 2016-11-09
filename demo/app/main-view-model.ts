@@ -1,5 +1,5 @@
 import {Observable} from "data/observable";
-import {Nfc} from "nativescript-nfc";
+import {Nfc, NfcTagData} from "nativescript-nfc";
 
 export class HelloWorldModel extends Observable {
   public message: string;
@@ -28,19 +28,20 @@ export class HelloWorldModel extends Observable {
     });
   }
 
-  public doStartListening() {
-    this.set("lastNfcTagRead", "Testing123");
-    // TODO pass in callback function
-    this.nfc.startListening().then(() => {
-      console.log("Started listening for Nfc tags");
+  public doStartListeningForTagDiscovery() {
+    let that = this;
+    this.nfc.setOnTagDiscoveredListener((data: NfcTagData) => {
+      that.set("lastNfcTagRead", data.id);
+    }).then(() => {
+      console.log("Listener set");
     }, (err) => {
       alert(err);
     });
   }
 
-  public doStopListening() {
-    this.nfc.stopListening().then(() => {
-      console.log("Stopped listening for Nfc tags");
+  public doStopListeningForTagDiscovery() {
+    this.nfc.setOnTagDiscoveredListener(null).then(() => {
+      console.log("Listener nulled");
     }, (err) => {
       alert(err);
     });

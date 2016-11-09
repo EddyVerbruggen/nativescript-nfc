@@ -1,10 +1,12 @@
-import {NfcApi, WriteTagOptions} from "./nfc.common";
+import {NfcApi, NfcTagData, WriteTagOptions} from "./nfc.common";
 import * as utils from "utils/utils";
 
 import * as application from "application";
 import * as frame from "ui/frame";
 
 declare let Array: any;
+
+let onTagDiscoveredListener: (data: NfcTagData) => void = null;
 
 const UriProtocols = ["", "http://www.", "https://www.", "http://", "https://", "tel:", "mailto:", "ftp://anonymous:anonymous@", "ftp://ftp.", "ftps://", "sftp://", "smb://", "nfs://", "ftp://", "dav://", "news:", "telnet://", "imap:", "rtsp://", "urn:", "pop:", "sip:", "sips:", "tftp:", "btspp://", "btl2cap://", "btgoep://", "tcpobex://", "irdaobex://", "file://", "urn:epc:id:", "urn:epc:tag:", "urn:epc:pat:", "urn:epc:raw:", "urn:epc:", "urn:nfc:"];
 
@@ -24,6 +26,9 @@ class NfcIntentHandler {
     if (action === null) {
       return;
     }
+
+    // every action should map to a different listener you pass in at 'startListening'
+    console.log("Action: " + action);
 
     let tag = intent.getParcelableExtra(android.nfc.NfcAdapter.EXTRA_TAG) as android.nfc.Tag;
     let messages = intent.getParcelableArrayExtra(android.nfc.NfcAdapter.EXTRA_NDEF_MESSAGES);
@@ -65,13 +70,23 @@ class NfcIntentHandler {
       }
 
     } else if (action === android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED) {
-      let result = {
-        id: tag === null ? null : this.byteArrayToJSON(tag.getId()),
+      let result: NfcTagData = {
+        id: tag === null ? null : this.byteArrayToJSArray(tag.getId()),
         techList: this.techListToJSON(tag)
       };
-      // TODO invoke onTag callback
-      console.log("result: " + JSON.stringify(result));
+      console.log("invoking onTagDiscoveredListener if set with: " + JSON.stringify(result));
+      if (onTagDiscoveredListener !== null) {
+        onTagDiscoveredListener(result);
+      }
     }
+  }
+
+  byteArrayToJSArray(bytes): Array<number> {
+    let result = [];
+    for (let i = 0; i < bytes.length; i++) {
+      result.push(bytes[i]);
+    }
+    return result;
   }
 
   byteArrayToJSON(bytes): string {
@@ -211,6 +226,7 @@ class NfcIntentHandler {
     };
   }
 }
+
 let nfcIntentHandler = new NfcIntentHandler();
 
 
@@ -219,7 +235,6 @@ class Activity extends android.app.Activity {
   private _callbacks: frame.AndroidActivityCallbacks;
 
   onCreate(savedInstanceState: android.os.Bundle): void {
-    console.log("--- create");
     if (!this._callbacks) {
       (<any>frame).setActivityCallbacks(this);
     }
@@ -273,18 +288,25 @@ export class Nfc implements NfcApi {
     });
   };
 
-  public startListening(): Promise<any> {
+  public setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any> {
     let that = this;
-    // TODO don't add if already listening(?)
     return new Promise((resolve, reject) => {
-      that.intentFilters.push(new android.content.IntentFilter(android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED));
-      resolve(true);
-    });
-  };
-
-  public stopListening(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      resolve(true);
+      if (arg === null) {
+        for (let i = 0; i < that.intentFilters.length; i++) {
+          let filter = that.intentFilters[i];
+          if (android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED === filter.getAction(0)) {
+            that.intentFilters.splice(i, 1);
+            break;
+          }
+        }
+        onTagDiscoveredListener = null;
+      } else {
+        if (onTagDiscoveredListener === null) {
+          that.intentFilters.push(new android.content.IntentFilter(android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED));
+        }
+        onTagDiscoveredListener = arg;
+      }
+      resolve();
     });
   };
 

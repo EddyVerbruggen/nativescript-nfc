@@ -31,20 +31,41 @@ export interface WriteTagOptions {
 }
 
 export interface NfcTagData {
-  id: Array<number>;
+  id?: Array<number>;
   techList?: Array<string>;
+}
+
+export interface NfcNdefRecord {
+  id: Array<number>;
+  tnf: number;
+  type: string;
+  payload: string;
+  payloadAsHexString: string;
+  payloadAsStringWithPrefix: string;
+  payloadAsString: string;
+}
+
+export interface NfcNdefData extends NfcTagData {
+  type: string;
+  maxSize: number;
+  writable: boolean;
+  message: Array<NfcNdefRecord>;
+  canMakeReadOnly: boolean;
 }
 
 export interface NfcApi {
   available(): Promise<boolean>;
   enabled(): Promise<boolean>;
+  writeTag(arg: WriteTagOptions): Promise<any>;
+  eraseTag(): Promise<any>;
   /**
    * Set to null to remove the listener.
    */
   setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any>;
-  // removeOnTagDiscoveredListener(): Promise<any>;
-  writeTag(arg: WriteTagOptions): Promise<any>;
-  eraseTag(): Promise<any>;
+  /**
+   * Set to null to remove the listener.
+   */
+  setOnNdefDiscoveredListener(arg: (data: NfcNdefData) => void): Promise<any>;
 }
 
 export class Common implements NfcApi {
@@ -61,6 +82,12 @@ export class Common implements NfcApi {
   };
 
   public setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any> {
+    return new Promise((resolve, reject) => {
+      resolve();
+    });
+  };
+
+  public setOnNdefDiscoveredListener(arg: (data: NfcNdefData) => void): Promise<any> {
     return new Promise((resolve, reject) => {
       resolve();
     });

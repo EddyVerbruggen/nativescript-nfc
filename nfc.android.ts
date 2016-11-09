@@ -1,4 +1,4 @@
-import {NfcApi, NfcTagData, WriteTagOptions} from "./nfc.common";
+import {NfcApi, NfcTagData, NfcNdefData, NfcNdefRecord, WriteTagOptions} from "./nfc.common";
 import * as utils from "utils/utils";
 
 import * as application from "application";
@@ -7,6 +7,7 @@ import * as frame from "ui/frame";
 declare let Array: any;
 
 let onTagDiscoveredListener: (data: NfcTagData) => void = null;
+let onNdefDiscoveredListener: (data: NfcNdefData) => void = null;
 
 const UriProtocols = ["", "http://www.", "https://www.", "http://", "https://", "tel:", "mailto:", "ftp://anonymous:anonymous@", "ftp://ftp.", "ftps://", "sftp://", "smb://", "nfs://", "ftp://", "dav://", "news:", "telnet://", "imap:", "rtsp://", "urn:", "pop:", "sip:", "sips:", "tftp:", "btspp://", "btl2cap://", "btgoep://", "tcpobex://", "irdaobex://", "file://", "urn:epc:id:", "urn:epc:tag:", "urn:epc:pat:", "urn:epc:raw:", "urn:epc:", "urn:nfc:"];
 
@@ -36,21 +37,23 @@ class NfcIntentHandler {
     if (action === android.nfc.NfcAdapter.ACTION_NDEF_DISCOVERED) {
       let ndef = android.nfc.tech.Ndef.get(tag);
 
-      let ndefJson = this.ndefToJSON(ndef);
+      let ndefJson: NfcNdefData = this.ndefToJSON(ndef);
 
       if (ndef === null && messages !== null) {
         if (messages.length > 0) {
           let message = messages[0] as android.nfc.NdefMessage;
-          ndefJson["ndefMessage"] = this.messageToJSON(message);
-          ndefJson["type"] = "NDEF Push Protocol";
+          ndefJson.message = this.messageToJSON(message);
+          ndefJson.type = "NDEF Push Protocol";
         }
         if (messages.length > 1) {
           console.log("Expected 1 ndefMessage but found " + messages.length);
         }
       }
 
-      // TODO call onNdefMime event with ndefJson payload
-      console.log("ndefJson: " + JSON.stringify(ndefJson));
+      console.log("invoking onNdefDiscoveredListener (if set) with: " + JSON.stringify(ndefJson));
+      if (onNdefDiscoveredListener !== null) {
+        onNdefDiscoveredListener(ndefJson);
+      }
 
     } else if (action === android.nfc.NfcAdapter.ACTION_TECH_DISCOVERED) {
       let techList = tag.getTechList();
@@ -167,28 +170,30 @@ class NfcIntentHandler {
     return null;
   }
 
-  ndefToJSON(ndef: android.nfc.tech.Ndef): {} {
-    let result = {};
-
+  ndefToJSON(ndef: android.nfc.tech.Ndef): NfcNdefData {
     if (ndef === null) {
-      return result;
+      return null;
     }
+
+    let result = {
+      type: ndef.getType(),
+      maxSize: ndef.getMaxSize(),
+      writable: ndef.isWritable(),
+      message: this.messageToJSON(ndef.getCachedNdefMessage()),
+      canMakeReadOnly: ndef.canMakeReadOnly()
+    } as NfcNdefData;
+
 
     let tag = ndef.getTag();
     if (tag !== null) {
-      result["id"] = this.byteArrayToJSON(tag.getId());
-      result["techList"] = this.techListToJSON(tag);
+      result.id = this.byteArrayToJSArray(tag.getId());
+      result.techList = this.techListToJSON(tag);
     }
 
-    result["type"] = ndef.getType();
-    result["maxSize"] = ndef.getMaxSize();
-    result["writable"] = ndef.isWritable();
-    result["ndefMessage"] = this.messageToJSON(ndef.getCachedNdefMessage());
-    result["canMakeReadOnly"] = ndef.canMakeReadOnly();
     return result;
   }
 
-  messageToJSON(message: android.nfc.NdefMessage): {} {
+  messageToJSON(message: android.nfc.NdefMessage): Array<NfcNdefRecord> {
     if (message === null) {
       return null;
     }
@@ -201,7 +206,7 @@ class NfcIntentHandler {
     return result;
   }
 
-  recordToJSON(record: android.nfc.NdefRecord): {} {
+  recordToJSON(record: android.nfc.NdefRecord): NfcNdefRecord {
     let payloadAsString = this.bytesToString(record.getPayload());
     let payloadAsStringWithPrefix = payloadAsString;
     if (record.getType()[0] === 0x54) {
@@ -218,7 +223,7 @@ class NfcIntentHandler {
     return {
       tnf: record.getTnf(),
       type: this.byteArrayToJSON(record.getType()),
-      id: this.byteArrayToJSON(record.getId()),
+      id: this.byteArrayToJSArray(record.getId()),
       payload: this.byteArrayToJSON(record.getPayload()),
       payloadAsHexString: this.bytesToHexString(record.getPayload()),
       payloadAsStringWithPrefix: payloadAsStringWithPrefix,
@@ -305,6 +310,28 @@ export class Nfc implements NfcApi {
           that.intentFilters.push(new android.content.IntentFilter(android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED));
         }
         onTagDiscoveredListener = arg;
+      }
+      resolve();
+    });
+  };
+
+  public setOnNdefDiscoveredListener(arg: (data: NfcNdefData) => void): Promise<any> {
+    let that = this;
+    return new Promise((resolve, reject) => {
+      if (arg === null) {
+        for (let i = 0; i < that.intentFilters.length; i++) {
+          let filter = that.intentFilters[i];
+          if (android.nfc.NfcAdapter.ACTION_NDEF_DISCOVERED === filter.getAction(0)) {
+            that.intentFilters.splice(i, 1);
+            break;
+          }
+        }
+        onNdefDiscoveredListener = null;
+      } else {
+        if (onNdefDiscoveredListener === null) {
+          that.intentFilters.push(new android.content.IntentFilter(android.nfc.NfcAdapter.ACTION_NDEF_DISCOVERED));
+        }
+        onNdefDiscoveredListener = arg;
       }
       resolve();
     });

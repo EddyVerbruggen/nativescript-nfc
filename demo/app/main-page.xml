@@ -15,9 +15,12 @@
       </StackLayout>
 
       <StackLayout orientation="horizontal" width="100%">
-        <Button text="write 'Hello'" tap="{{ doWriteHello }}" cssClass="button button-b" width="40%" />
-        <!--<Button text="write 'Goodbye'" tap="{{ doWriteGoodbye }}" cssClass="button button-b" width="40%" align="right" />-->
-        <Button text="erase tag" tap="{{ doEraseTag }}" cssClass="button button-c" width="40%" align="right" />
+        <Button text="write Text" tap="{{ doWriteText }}" cssClass="button button-b" width="40%" />
+        <Button text="write Uri" tap="{{ doWriteUri }}" cssClass="button button-b" width="40%" align="right" />
+      </StackLayout>
+
+      <StackLayout orientation="horizontal" width="100%">
+        <Button text="erase tag" tap="{{ doEraseTag }}" cssClass="button button-c" width="40%" />
       </StackLayout>
 
       <Label text="{{ lastNfcTagRead }}" cssClass="message" />

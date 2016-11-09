@@ -46,12 +46,12 @@ export class HelloWorldModel extends Observable {
     });
   }
 
-  public doWriteHello() {
+  public doWriteText() {
     this.nfc.writeTag({
       textRecords: [
         {
           id: [1],
-          text: "Hello"
+          text: "Hello!"
         }
       ]
     }).then(() => {
@@ -61,12 +61,12 @@ export class HelloWorldModel extends Observable {
     });
   }
 
-  public doWriteGoodbye() {
+  public doWriteUri() {
     this.nfc.writeTag({
-      textRecords: [
+      uriRecords: [
         {
-          id: [2],
-          text: "Goodbye"
+          id: [2, 5],
+          uri: "https://www.telerik.com"
         }
       ]
     }).then(() => {

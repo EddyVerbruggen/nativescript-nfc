@@ -6,6 +6,7 @@ import * as frame from "ui/frame";
 
 declare let Array: any;
 
+const UriProtocols = ["", "http://www.", "https://www.", "http://", "https://", "tel:", "mailto:", "ftp://anonymous:anonymous@", "ftp://ftp.", "ftps://", "sftp://", "smb://", "nfs://", "ftp://", "dav://", "news:", "telnet://", "imap:", "rtsp://", "urn:", "pop:", "sip:", "sips:", "tftp:", "btspp://", "btl2cap://", "btgoep://", "tcpobex://", "irdaobex://", "file://", "urn:epc:id:", "urn:epc:tag:", "urn:epc:pat:", "urn:epc:raw:", "urn:epc:", "urn:nfc:"];
 
 class NfcIntentHandler {
   public savedIntent: android.content.Intent = null;
@@ -187,15 +188,26 @@ class NfcIntentHandler {
 
   recordToJSON(record: android.nfc.NdefRecord): {} {
     let payloadAsString = this.bytesToString(record.getPayload());
-    let languageCodeLength = record.getPayload()[0];
+    let payloadAsStringWithPrefix = payloadAsString;
+    if (record.getType()[0] === 0x54) {
+      let languageCodeLength = record.getPayload()[0];
+      payloadAsString = payloadAsStringWithPrefix.substring(languageCodeLength + 1);
+
+    } else if (record.getType()[0] === 0x55) {
+      let prefix = UriProtocols[record.getPayload()[0]];
+      if (!prefix) {
+        prefix = "";
+      }
+      payloadAsString = prefix + payloadAsString.slice(1);
+    }
     return {
       tnf: record.getTnf(),
       type: this.byteArrayToJSON(record.getType()),
       id: this.byteArrayToJSON(record.getId()),
       payload: this.byteArrayToJSON(record.getPayload()),
       payloadAsHexString: this.bytesToHexString(record.getPayload()),
-      payloadAsStringWithLanguageCode: payloadAsString,
-      payloadAsString: payloadAsString.substring(languageCodeLength + 1)
+      payloadAsStringWithPrefix: payloadAsStringWithPrefix,
+      payloadAsString: payloadAsString
     };
   }
 }
@@ -387,7 +399,10 @@ export class Nfc implements NfcApi {
   }
 
   private jsonToNdefRecords(input: WriteTagOptions): Array<android.nfc.NdefRecord> {
-    let records = new Array.create(android.nfc.NdefRecord, input.textRecords.length);
+    let nrOfRecords = 0;
+    nrOfRecords += input.textRecords ? input.textRecords.length : 0;
+    nrOfRecords += input.uriRecords ? input.uriRecords.length : 0;
+    let records = new Array.create(android.nfc.NdefRecord, nrOfRecords);
 
     let recordCounter: number = 0;
 
@@ -408,6 +423,51 @@ export class Nfc implements NfcApi {
         if (textRecord.id) {
           for (let j = 0; j < textRecord.id.length; j++) {
             id[j] = textRecord.id[j];
+          }
+        }
+
+        let payload = Array.create("byte", encoded.length);
+        for (let n = 0; n < encoded.length; n++) {
+          payload[n] = encoded[n];
+        }
+
+        let record = new android.nfc.NdefRecord(tnf, type, id, payload);
+        console.log("record: " + record);
+
+        records[recordCounter++] = record;
+      }
+    }
+
+    if (input.uriRecords !== null) {
+      for (let i in input.uriRecords) {
+        let uriRecord = input.uriRecords[i];
+        let uri = uriRecord.uri;
+
+        let prefix;
+
+        UriProtocols.slice(1).forEach(function(protocol) {
+          if ((!prefix || prefix === "urn:") && uri.indexOf(protocol) === 0) {
+            prefix = protocol;
+          }
+        });
+
+        if (!prefix) {
+          prefix = "";
+        }
+
+        let encoded = this.stringToBytes(uri.slice(prefix.length));
+        // prepend protocol code
+        encoded.unshift(UriProtocols.indexOf(prefix));
+
+        let tnf = android.nfc.NdefRecord.TNF_WELL_KNOWN; // 0x01;
+
+        let type = Array.create("byte", 1);
+        type[0] = 0x55;
+
+        let id = Array.create("byte", uriRecord.id ? uriRecord.id.length : 0);
+        if (uriRecord.id) {
+          for (let j = 0; j < uriRecord.id.length; j++) {
+            id[j] = uriRecord.id[j];
           }
         }
 

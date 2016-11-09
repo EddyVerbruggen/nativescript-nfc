@@ -10,20 +10,26 @@
       </StackLayout>
 
       <StackLayout orientation="horizontal" width="100%">
-        <Button text="start tag discovery" tap="{{ doStartListeningForTagDiscovery }}" cssClass="button" width="40%"/>
-        <Button text="stop tag discovery" tap="{{ doStopListeningForTagDiscovery }}" cssClass="button" width="40%" align="right"/>
+        <Button text="set tag listener" tap="{{ doStartTagListener }}" cssClass="button" width="40%"/>
+        <Button text="clear tag listner" tap="{{ doStopTagListener }}" cssClass="button" width="40%" align="right"/>
       </StackLayout>
 
       <StackLayout orientation="horizontal" width="100%">
-        <Button text="write Text" tap="{{ doWriteText }}" cssClass="button button-b" width="40%" />
-        <Button text="write Uri" tap="{{ doWriteUri }}" cssClass="button button-b" width="40%" align="right" />
+        <Button text="set ndef listener" tap="{{ doStartNdefListener }}" cssClass="button" width="40%"/>
+        <Button text="clear ndef listener" tap="{{ doStopNdefListener }}" cssClass="button" width="40%" align="right"/>
+      </StackLayout>
+
+      <StackLayout orientation="horizontal" width="100%">
+        <Button text="write Text" tap="{{ doWriteText }}" cssClass="button button-d" width="40%" />
+        <Button text="write Uri" tap="{{ doWriteUri }}" cssClass="button button-d" width="40%" align="right" />
       </StackLayout>
 
       <StackLayout orientation="horizontal" width="100%">
         <Button text="erase tag" tap="{{ doEraseTag }}" cssClass="button button-c" width="40%" />
       </StackLayout>
 
-      <Label text="{{ lastNfcTagRead }}" cssClass="message" />
+      <Label text="{{ lastTagDiscovered }}" cssClass="message" />
+      <Label text="{{ lastNdefDiscovered }}" cssClass="message" />
 
     </StackLayout>
   </ScrollView>

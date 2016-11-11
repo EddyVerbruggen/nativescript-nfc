@@ -26,10 +26,9 @@
 
       <StackLayout orientation="horizontal" width="100%">
         <Button text="erase tag" tap="{{ doEraseTag }}" cssClass="button button-c" width="40%" />
+        <Label text="{{ lastNdefDiscovered }}" cssClass="message message-ndef" width="40%" />
       </StackLayout>
 
-      <Label text="{{ lastTagDiscovered }}" cssClass="message" />
-      <Label text="{{ lastNdefDiscovered }}" cssClass="message" />
 
     </StackLayout>
   </ScrollView>

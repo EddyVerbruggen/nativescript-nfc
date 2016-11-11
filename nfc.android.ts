@@ -50,8 +50,9 @@ class NfcIntentHandler {
         }
       }
 
-      console.log("invoking onNdefDiscoveredListener (if set) with: " + JSON.stringify(ndefJson));
-      if (onNdefDiscoveredListener !== null) {
+      if (onNdefDiscoveredListener === null) {
+        console.log("Ndef discovered, but no listener was set via setOnNdefDiscoveredListener. Ndef: " + JSON.stringify(ndefJson));
+      } else {
         onNdefDiscoveredListener(ndefJson);
       }
 
@@ -77,8 +78,10 @@ class NfcIntentHandler {
         id: tag === null ? null : this.byteArrayToJSArray(tag.getId()),
         techList: this.techListToJSON(tag)
       };
-      console.log("invoking onTagDiscoveredListener if set with: " + JSON.stringify(result));
-      if (onTagDiscoveredListener !== null) {
+
+      if (onTagDiscoveredListener === null) {
+        console.log("Tag discovered, but no listener was set via setOnTagDiscoveredListener. Ndef: " + JSON.stringify(result));
+      } else {
         onTagDiscoveredListener(result);
       }
     }
@@ -408,7 +411,7 @@ export class Nfc implements NfcApi {
 
   private writeNdefMessage(message: android.nfc.NdefMessage, tag: android.nfc.Tag): string {
     let ndef = android.nfc.tech.Ndef.get(tag);
-    console.log("nfed: " + ndef);
+    console.log("Ndef: " + ndef);
 
     if (ndef === null) {
       let formatable = android.nfc.tech.NdefFormatable.get(tag);
@@ -416,7 +419,7 @@ export class Nfc implements NfcApi {
         return "Tag doesn't support NDEF";
       }
       formatable.connect();
-      console.log("formatable nfed connected");
+      console.log("formatable Ndef connected");
       formatable.format(message);
       formatable.close();
       return null;
@@ -429,7 +432,7 @@ export class Nfc implements NfcApi {
       return "connection failed";
     }
 
-    console.log("nfed connected");
+    console.log("Ndef connected");
 
     if (!ndef.isWritable()) {
       return "Tag not writable";

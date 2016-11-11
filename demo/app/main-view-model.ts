@@ -83,7 +83,7 @@ export class HelloWorldModel extends Observable {
         }
       ]
     }).then(() => {
-      console.log("Wrote Hello");
+      console.log("Wrote text 'Hello!'");
     }, (err) => {
       alert(err);
     });
@@ -98,7 +98,7 @@ export class HelloWorldModel extends Observable {
         }
       ]
     }).then(() => {
-      console.log("Wrote Goodbye");
+      console.log("Wrote uri 'https://www.telerik.com");
     }, (err) => {
       alert(err);
     });

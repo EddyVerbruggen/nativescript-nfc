@@ -241,7 +241,6 @@ class Activity extends android.app.Activity {
   private _callbacks: frame.AndroidActivityCallbacks;
 
   onCreate(savedInstanceState: android.os.Bundle): void {
-    console.log("--- onCreate");
     if (!this._callbacks) {
       (<any>frame).setActivityCallbacks(this);
     }
@@ -378,10 +377,8 @@ export class Nfc implements NfcApi {
         }
 
         let tag = nfcIntentHandler.savedIntent.getParcelableExtra(android.nfc.NfcAdapter.EXTRA_TAG) as android.nfc.Tag;
-        console.log("write, tag: " + tag);
 
         let records = that.jsonToNdefRecords(arg);
-        console.log("write, records: " + records);
 
         // avoiding a TS issue in the generate Android definitions
         let ndefClass = android.nfc.NdefMessage as any;
@@ -401,7 +398,6 @@ export class Nfc implements NfcApi {
 
   private writeNdefMessage(message: android.nfc.NdefMessage, tag: android.nfc.Tag): string {
     let ndef = android.nfc.tech.Ndef.get(tag);
-    console.log("Ndef: " + ndef);
 
     if (ndef === null) {
       let formatable = android.nfc.tech.NdefFormatable.get(tag);
@@ -409,7 +405,6 @@ export class Nfc implements NfcApi {
         return "Tag doesn't support NDEF";
       }
       formatable.connect();
-      console.log("formatable Ndef connected");
       formatable.format(message);
       formatable.close();
       return null;
@@ -421,8 +416,6 @@ export class Nfc implements NfcApi {
       console.log("ndef connection error: " + e);
       return "connection failed";
     }
-
-    console.log("Ndef connected");
 
     if (!ndef.isWritable()) {
       return "Tag not writable";
@@ -474,7 +467,6 @@ export class Nfc implements NfcApi {
         }
 
         let record = new android.nfc.NdefRecord(tnf, type, id, payload);
-        console.log("record: " + record);
 
         records[recordCounter++] = record;
       }
@@ -519,7 +511,6 @@ export class Nfc implements NfcApi {
         }
 
         let record = new android.nfc.NdefRecord(tnf, type, id, payload);
-        console.log("record: " + record);
 
         records[recordCounter++] = record;
       }

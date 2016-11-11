@@ -70,8 +70,10 @@ nfc.enabled().then((on) => {
 You may want to get notified when an NFC tag was discovered.
 You can pass in a callback function that gets invoked when that is the case.
 
-Not that Ndef tags (which you may have previously written data to) are not returned here,
+Note that Ndef tags (which you may have previously written data to) are not returned here,
 but through `setOnNdefDiscoveredListener` instead.
+
+See the [definition of NfcTagData](https://github.com/EddyVerbruggen/nativescript-nfc/blob/master/nfc.common.d.ts#L14-L17) to learn what is returned to the callback function.
 
 ##### JavaScript
 ```js
@@ -86,13 +88,14 @@ nfc.setOnTagDiscoveredListener(function(data) {
 
 ##### TypeScript
 ```js
+import {NfcTagData} from "nativescript-nfc";
+
 nfc.setOnTagDiscoveredListener((data: NfcTagData) => {
   console.log("Discovered a tag with ID " + data.id);  
 }).then(() => {
     console.log("OnTagDiscovered listener added");
 });
 ```
-
 
 You can pass in `null` instead of a callback function if you want to remove the listener.
 
@@ -102,6 +105,118 @@ nfc.setOnTagDiscoveredListener(null).then(() => {
     console.log("OnTagDiscovered listener removed");
 });
 ```
+
+### `setOnNdefDiscoveredListener`
+You may want to get notified when an Ndef tag was discovered.
+You can pass in a callback function that gets invoked when that is the case.
+
+Not that blank/erased NFC tags are not returned here, but through `setOnTagDiscoveredListener` instead.
+
+See the [definition of NfcNdefData](https://github.com/EddyVerbruggen/nativescript-nfc/blob/master/nfc.common.d.ts#L27-L33) to learn what is returned to the callback function.
+
+##### JavaScript
+```js
+nfc.setOnNdefDiscoveredListener(function(data) {
+    // see the TypeScript example below
+}).then(
+  function() {
+    console.log("OnNdefDiscovered listener added");
+  }
+);
+```
+
+##### TypeScript
+```js
+import {NfcNdefData} from "nativescript-nfc";
+
+nfc.setOnNdefDiscoveredListener((data: NfcNdefData) => {
+  // data.message is an array of records, so:
+  if (data.message) {
+    for (let m in data.message) {
+      let record = data.message[m];
+      console.log("Ndef discovered! Message record: " + record.payloadAsString);
+    }
+  }
+}).then(() => {
+    console.log("OnNdefDiscovered listener added");
+});
+```
+
+You can pass in `null` instead of a callback function if you want to remove the listener.
+
+##### TypeScript
+```js
+nfc.setOnNdefDiscoveredListener(null).then(() => {
+    console.log("OnNdefDiscovered listener removed");
+});
+```
+
+### `writeTag`
+You can write to a tag as well with this plugin. At the moment you can write either plain text or a Uri. The latter one will launch the browser on an Android device if the tag is scanned (unless an app handling Ndef tags itself is active at that moment, like an app with this plugin - just close the app to test this feature).
+
+Note that you can write multiple items to a NFC tag so the input is an object with Arrays of various types (`textRecord` and `uriRecord` are currently supported). See the [TypeScript definition](https://github.com/EddyVerbruggen/nativescript-nfc/blob/master/nfc.common.d.ts#L10-L13) for details, but these examples should get you going:
+
+##### Writing 2 textRecords in JavaScript
+```js
+nfc.writeTag({
+    textRecords: [
+        {
+          id: [1],
+          text: "Hello"
+        },
+        {
+          id: [3,7],
+          text: "Goodbye"
+        }
+    ]
+}).then(function() {
+    console.log("Wrote text records 'Hello' and 'Goodbye'");
+}, function(err) {
+    alert(err);
+});
+```
+
+##### Writing a uriRecord in TypeScript
+```js
+nfc.writeTag({
+    uriRecords: [
+        {
+          id: [100],
+          uri: "https://www.progress.com"
+        }
+    ]
+}).then(() => {
+    console.log("Wrote Uri record 'https://www.progress.com");
+}, (err) => {
+    alert(err);
+});
+```
+
+### `eraseTag`
+You can erase all content from a tag if you like.
+
+##### JavaScript
+```js
+nfc.eraseTag().then(
+  function() {
+    console.log("Tag erased");
+  }
+);
+```
+
+##### TypeScript
+```js
+nfc.eraseTag().then(() => {
+    console.log("Tag erased");
+});
+```
+
+## Tips
+### Writing to an empty tag
+You first need to "discover" it with `setOnTagDiscoveredListener` (see below). While you're still "near" the tag you can call `writeTag`.
+
+### Writing to a non-empty tag
+Same as above, but discovery is done through `setOnNdefDiscoveredListener`.
 
 ## Future work
 * Peer to peer communication between two NFC enabled devices.

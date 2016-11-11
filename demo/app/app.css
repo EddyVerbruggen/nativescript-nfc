@@ -4,6 +4,10 @@
   padding: 20;
 }
 
+.message-ndef {
+  margin-left: 20;
+}
+
 button {
   background-color: #6494AA;
   padding: 10;

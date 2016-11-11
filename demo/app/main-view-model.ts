@@ -31,9 +31,10 @@ export class HelloWorldModel extends Observable {
   public doStartTagListener() {
     let that = this;
     this.nfc.setOnTagDiscoveredListener((data: NfcTagData) => {
+      console.log("Tag discovered! " + data.id);
       that.set("lastTagDiscovered", data.id);
     }).then(() => {
-      console.log("Listener set");
+      console.log("OnTagDiscovered Listener set");
     }, (err) => {
       alert(err);
     });
@@ -41,7 +42,7 @@ export class HelloWorldModel extends Observable {
 
   public doStopTagListener() {
     this.nfc.setOnTagDiscoveredListener(null).then(() => {
-      console.log("Listener nulled");
+      console.log("OnTagDiscovered nulled");
     }, (err) => {
       alert(err);
     });
@@ -50,9 +51,16 @@ export class HelloWorldModel extends Observable {
   public doStartNdefListener() {
     let that = this;
     this.nfc.setOnNdefDiscoveredListener((data: NfcNdefData) => {
-      that.set("lastNdefDiscovered", data.message);
+      // data.message is an array of records, so:
+      if (data.message) {
+        for (let m in data.message) {
+          let record = data.message[m];
+          console.log("Ndef discovered! Message record: " + record.payloadAsString);
+          that.set("lastNdefDiscovered", record.payloadAsString);
+        }
+      }
     }).then(() => {
-      console.log("Listener set");
+      console.log("OnNdefDiscoveredListener set");
     }, (err) => {
       alert(err);
     });
@@ -60,7 +68,7 @@ export class HelloWorldModel extends Observable {
 
   public doStopNdefListener() {
     this.nfc.setOnNdefDiscoveredListener(null).then(() => {
-      console.log("Listener nulled");
+      console.log("OnNdefDiscoveredListener nulled");
     }, (err) => {
       alert(err);
     });

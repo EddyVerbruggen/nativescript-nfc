@@ -17,7 +17,7 @@ You can run the demo app from the root of the project by typing `npm run demo.io
 ## API
 
 ### `available`
-Not all devices have an NFC chip we can tap into. iPhones for instance.. so check this beforehand:
+Not all devices have an NFC chip we can tap in to. iPhones for instance.. so check this beforehand:
 
 ##### JavaScript
 ```js
@@ -110,7 +110,7 @@ nfc.setOnTagDiscoveredListener(null).then(() => {
 You may want to get notified when an Ndef tag was discovered.
 You can pass in a callback function that gets invoked when that is the case.
 
-Not that blank/erased NFC tags are not returned here, but through `setOnTagDiscoveredListener` instead.
+Note that blank/erased NFC tags are not returned here, but through `setOnTagDiscoveredListener` instead.
 
 See the [definition of NfcNdefData](https://github.com/EddyVerbruggen/nativescript-nfc/blob/master/nfc.common.d.ts#L27-L33) to learn what is returned to the callback function.
 
@@ -152,9 +152,9 @@ nfc.setOnNdefDiscoveredListener(null).then(() => {
 ```
 
 ### `writeTag`
-You can write to a tag as well with this plugin. At the moment you can write either plain text or a Uri. The latter one will launch the browser on an Android device if the tag is scanned (unless an app handling Ndef tags itself is active at that moment, like an app with this plugin - just close the app to test this feature).
+You can write to a tag as well with this plugin. At the moment you can write either plain text or a Uri. The latter will launch the browser on an Android device if the tag is scanned (unless an app handling Ndef tags itself is active at that moment, like an app with this plugin - so just close the app to test this feature).
 
-Note that you can write multiple items to a NFC tag so the input is an object with Arrays of various types (`textRecord` and `uriRecord` are currently supported). See the [TypeScript definition](https://github.com/EddyVerbruggen/nativescript-nfc/blob/master/nfc.common.d.ts#L10-L13) for details, but these examples should get you going:
+Note that you can write multiple items to an NFC tag so the input is an object with Arrays of various types (`textRecord` and `uriRecord` are currently supported). See the [TypeScript definition](https://github.com/EddyVerbruggen/nativescript-nfc/blob/master/nfc.common.d.ts#L10-L13) for details, but these examples should get you going:
 
 ##### Writing 2 textRecords in JavaScript
 ```js
@@ -193,7 +193,7 @@ nfc.writeTag({
 ```
 
 ### `eraseTag`
-You can erase all content from a tag if you like.
+And finally, you can erase all content from a tag if you like.
 
 ##### JavaScript
 ```js
@@ -219,5 +219,5 @@ You first need to "discover" it with `setOnTagDiscoveredListener` (see below). W
 Same as above, but discovery is done through `setOnNdefDiscoveredListener`.
 
 ## Future work
-* Peer to peer communication between two NFC enabled devices.
+* Peer to peer communication between two NFC-enabled devices.
 * Support for writing other types in addition to 'text' and 'uri'.

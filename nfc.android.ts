@@ -243,6 +243,7 @@ class Activity extends android.app.Activity {
   private _callbacks: frame.AndroidActivityCallbacks;
 
   onCreate(savedInstanceState: android.os.Bundle): void {
+    console.log("--- onCreate");
     if (!this._callbacks) {
       (<any>frame).setActivityCallbacks(this);
     }
@@ -263,6 +264,7 @@ export class Nfc implements NfcApi {
   private techLists: any;
 
   constructor() {
+    let that = this;
     this.intentFilters = [];
     this.techLists = Array.create("[Ljava.lang.String;", 0);
 
@@ -276,10 +278,38 @@ export class Nfc implements NfcApi {
       nfcAdapter.enableForegroundDispatch(application.android.foregroundActivity, this.pendingIntent, this.intentFilters, this.techLists);
     }
 
-    // when peer2peer is supported, handle pending push messages here
+    // note: once peer2peer is supported, handle possible pending push messages here
 
-    // handle any pending intent
+    // handle any pending intent (and on resume as well)
     nfcIntentHandler.parseMessage();
+
+    application.android.on(application.AndroidApplication.activityPausedEvent, function (args: application.AndroidActivityEventData) {
+      console.log("Paused Event: " + args.eventName + ", Activity: " + args.activity);
+      setTimeout(function() {
+        let pausingNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(application.android.foregroundActivity);
+        if (pausingNfcAdapter !== null) {
+          pausingNfcAdapter.disableForegroundDispatch(application.android.foregroundActivity);
+        }
+      }, 300);
+    });
+
+    application.android.on(application.AndroidApplication.activityResumedEvent, function (args: application.AndroidActivityEventData) {
+      console.log("Resumed Event: " + args.eventName + ", Activity: " + args.activity);
+      setTimeout(function() {
+        let resumingNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(application.android.foregroundActivity);
+        if (resumingNfcAdapter !== null) {
+          console.log("--- intentFilters: " + that.intentFilters);
+          console.log("--- intentFilters.string: " + JSON.stringify(that.intentFilters));
+          console.log("--- pendingIntent: " + that.pendingIntent);
+
+          // let resumingIntent = new android.content.Intent(application.android.foregroundActivity, application.android.foregroundActivity.getClass());
+          // resumingIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP | android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
+          // that.pendingIntent = android.app.PendingIntent.getActivity(application.android.foregroundActivity, 0, resumingIntent, 0);
+
+          resumingNfcAdapter.enableForegroundDispatch(application.android.foregroundActivity, that.pendingIntent, that.intentFilters, that.techLists);
+        }
+      }, 500);
+    });
   }
 
   public available(): Promise<boolean> {

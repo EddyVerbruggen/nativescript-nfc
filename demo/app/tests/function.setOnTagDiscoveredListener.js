@@ -5,7 +5,7 @@ describe("setOnTagDiscoveredListener", function() {
     expect(nfc.setOnTagDiscoveredListener).toBeDefined();
   });
 
-	it("returns a promise", function() {
-		expect(nfc.setOnTagDiscoveredListener()).toEqual(jasmine.any(Promise));
-	});
+  it("returns a promise", function() {
+    expect(nfc.setOnTagDiscoveredListener()).toEqual(jasmine.any(Promise));
+  });
 });

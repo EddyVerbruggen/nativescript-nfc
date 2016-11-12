@@ -5,7 +5,7 @@ describe("setOnNdefDiscoveredListener", function() {
     expect(nfc.setOnNdefDiscoveredListener).toBeDefined();
   });
 
-	it("returns a promise", function() {
-		expect(nfc.setOnNdefDiscoveredListener()).toEqual(jasmine.any(Promise));
-	});
+  it("returns a promise", function() {
+    expect(nfc.setOnNdefDiscoveredListener()).toEqual(jasmine.any(Promise));
+  });
 });

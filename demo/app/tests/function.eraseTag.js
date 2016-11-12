@@ -5,7 +5,7 @@ describe("eraseTag", function() {
     expect(nfc.eraseTag).toBeDefined();
   });
 
-	it("returns a promise", function() {
-		expect(nfc.eraseTag()).toEqual(jasmine.any(Promise));
-	});
+  it("returns a promise", function() {
+    expect(nfc.eraseTag()).toEqual(jasmine.any(Promise));
+  });
 });

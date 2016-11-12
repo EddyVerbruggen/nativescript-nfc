@@ -12,6 +12,8 @@
   },
   "scripts": {
     "build": "tsc",
+    "test.ios": "cd demo && tns test ios",
+    "test.android": "cd demo && tns test android",
     "demo.ios": "npm run preparedemo && cd demo && tns emulate ios",
     "demo.ios.device": "npm run preparedemo && cd demo && tns run ios",
     "demo.android": "npm run preparedemo && cd demo && tns run android",

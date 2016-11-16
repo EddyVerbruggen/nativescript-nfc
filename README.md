@@ -17,7 +17,7 @@ You can run the demo app from the root of the project by typing `npm run demo.io
 ## API
 
 ### `available`
-Not all devices have an NFC chip we can tap in to. iPhones for instance.. so check this beforehand:
+Not all devices have an NFC chip we can tap in to. iPhones for instance 😕 .. so check this beforehand:
 
 ##### JavaScript
 ```js
@@ -48,7 +48,7 @@ nfc.available().then((avail) => {
 ```
 
 ### `enabled`
-A device may have an NFC chip, but it needs to be turned on in order to be available for this plugin. So if `available` returns `true` and `enabled` returns `false` you should prompt the user to turn NFC on in the device settings.
+A device may have an NFC chip, but it needs to be turned on ✅ in order to be available for this plugin. So if `available` returns `true` and `enabled` returns `false` you should prompt the user to turn NFC on in the device settings.
 
 ##### JavaScript
 ```js

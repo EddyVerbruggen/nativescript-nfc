@@ -8,7 +8,7 @@ tns plugin add nativescript-nfc
 ```
 
 ## Demo app
-Want to dive in quickly? Check out [the demo](demo)!
+Want to dive in quickly? Check out [the demo](https://github.com/EddyVerbruggen/nativescript-nfc/tree/master/demo)!
 
 You can run the demo app from the root of the project by typing `npm run demo.ios.device` or `npm run demo.android`.
 

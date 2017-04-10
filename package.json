@@ -19,7 +19,9 @@
     "demo.android": "npm run preparedemo && cd demo && tns run android",
     "preparedemo": "npm run build && cd demo && tns plugin remove nativescript-nfc && tns plugin add .. && tns install",
     "setup": "npm i && cd demo && npm i && cd .. && npm run build && cd demo && tns plugin add .. && cd ..",
-    "postclone": "npm i && node scripts/postclone.js"
+    "postclone": "npm i && node scripts/postclone.js",
+    "prepublish": "npm run build",
+    "development.setup": "npm run setup && npm link && cd demo && npm link nativescript-nfc && cd .."
   },
   "repository": {
     "type": "git",

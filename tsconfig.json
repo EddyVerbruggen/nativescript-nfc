@@ -2,22 +2,32 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "removeComments": true,
-        "experimentalDecorators": true,
-        "noEmitHelpers": true,
         "declaration": true,
-        "noLib": true
+        "removeComments": true,
+        "noLib": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "lib": [
+            "es2016"
+        ],
+        "pretty": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "noEmitHelpers": true,
+        "noEmitOnError": false,
+        "noImplicitAny": false,
+        "noImplicitReturns": true,
+        "noImplicitUseStrict": false,
+        "noFallthroughCasesInSwitch": true,
+        "typeRoots": [
+            "./node_modules/@types",
+            "./node_modules"
+        ],
+        "types": []
     },
-    "files": [
-      "node_modules/typescript/lib/lib.core.d.ts",
-      "manual_typings/base.d.ts",
-      "node_modules/tns-core-modules/tns-core-modules.d.ts",
-      "node_modules/tns-platform-declarations/tns-core-modules/android17.d.ts",
-      "node_modules/tns-platform-declarations/tns-core-modules/ios/ios.d.ts",
-      "node_modules/tns-platform-declarations/tns-core-modules/org.nativescript.widgets.d.ts",
-      "nfc.common.ts",
-      "nfc.android.ts", 
-      "nfc.ios.ts"
+    "exclude": [
+        "demo",
+        "node_modules"
     ],
     "compileOnSave": false
 }

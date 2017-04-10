@@ -11,7 +11,7 @@
   "dependencies": {
     "nativescript-nfc": "file:..",
     "nativescript-unit-test-runner": "^0.3.4",
-    "tns-core-modules": "^2.3.0"
+    "tns-core-modules": "^2.5.1"
   },
   "devDependencies": {
     "babel-traverse": "6.12.0",
@@ -22,7 +22,7 @@
     "karma-jasmine": "^1.0.2",
     "karma-nativescript-launcher": "^0.4.0",
     "lazy": "1.0.11",
-    "nativescript-dev-typescript": "^0.3.2",
-    "typescript": "^1.8.10"
+    "nativescript-dev-typescript": "^0.3.7",
+    "typescript": "^2.1.0"
   }
 }

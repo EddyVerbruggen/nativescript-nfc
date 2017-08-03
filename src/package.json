@@ -1,0 +1,54 @@
+{
+  "name": "nativescript-nfc",
+  "version": "2.0.0",
+  "description": "NFC plugin for your NativeScript app",
+  "main": "nfc",
+  "typings": "index.d.ts",
+  "nativescript": {
+    "platforms": {
+      "android": "2.3.0",
+      "ios": "2.3.0"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "demo.ios": "npm run preparedemo && cd ../demo && tns run ios --emulator",
+    "demo.ios.device": "npm run preparedemo && cd ../demo && tns platform remove ios && tns run ios",
+    "demo.android": "npm run preparedemo && cd ../demo && tns platform remove android && tns run android --justlaunch",
+    "test": "npm run tslint && npm run tslint.demo && cd ../demo && tns build ios && tns build android",
+    "test.ios": "cd ../demo && tns platform remove ios && tns test ios --emulator",
+    "test.ios.device": "cd ../demo && tns platform remove ios && tns test ios",
+    "test.android": "cd ../demo && tns platform remove android && tns test android --justlaunch",
+    "preparedemo": "npm run build && cd ../demo && tns plugin remove nativescript-nfc && tns plugin add ../src && tns install",
+    "tslint": "tslint *.ts",
+    "tslint.demo": "tslint ../demo/app/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EddyVerbruggen/nativescript-nfc.git"
+  },
+  "keywords": [
+    "ecosystem:NativeScript",
+    "NativeScript",
+    "Android",
+    "iOS",
+    "NFC"
+  ],
+  "author": {
+    "name": "Eddy Verbruggen",
+    "email": "eddyverbruggen@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/EddyVerbruggen/nativescript-nfc/issues"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/EddyVerbruggen/nativescript-nfc",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "nativescript-dev-typescript": "~0.5.0",
+    "tns-core-modules": "~3.0.0",
+    "tns-platform-declarations": "~3.0.0",
+    "typescript": "~2.3.0",
+    "tslint": "~5.0.0"
+  }
+}

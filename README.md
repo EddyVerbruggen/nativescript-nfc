@@ -1,11 +1,27 @@
 # NativeScript NFC plugin
 
+[![Build Status][build-status]][build-url]
+[![NPM version][npm-image]][npm-url]
+[![Downloads][downloads-image]][npm-url]
+[![Twitter Follow][twitter-image]][twitter-url]
+
+[build-status]:https://travis-ci.org/EddyVerbruggen/nativescript-nfc.svg?branch=master
+[build-url]:https://travis-ci.org/EddyVerbruggen/nativescript-nfc
+[npm-image]:http://img.shields.io/npm/v/nativescript-nfc.svg
+[npm-url]:https://npmjs.org/package/nativescript-nfc
+[downloads-image]:http://img.shields.io/npm/dm/nativescript-nfc.svg
+[twitter-image]:https://img.shields.io/twitter/follow/eddyverbruggen.svg?style=social&label=Follow%20me
+[twitter-url]:https://twitter.com/eddyverbruggen
+
 ## Installation
 From the command prompt go to your app's root folder and execute:
 
 ```
 tns plugin add nativescript-nfc
 ```
+
+## iOS Setup
+iOS requires you to enable 'NFC Tag Reading' for your App ID [here](https://developer.apple.com/account/ios/identifier/bundle).
 
 ## Demo app
 Want to dive in quickly? Check out [the demo](https://github.com/EddyVerbruggen/nativescript-nfc/tree/master/demo)!
@@ -17,7 +33,7 @@ You can run the demo app from the root of the project by typing `npm run demo.io
 ## API
 
 ### `available`
-Not all devices have an NFC chip we can tap in to. iPhones for instance 😕 .. so check this beforehand:
+Not all devices have an NFC chip we can tap in to, so check this beforehand:
 
 ##### JavaScript
 ```js
@@ -35,9 +51,9 @@ nfc.available().then(
 ```
 
 ##### TypeScript
-```js
+```typescript
 // require the plugin
-import {Nfc} from "nativescript-nfc";
+import { Nfc } from "nativescript-nfc";
 
 // instantiate the plugin
 let nfc = new Nfc();
@@ -60,7 +76,7 @@ nfc.enabled().then(
 ```
 
 ##### TypeScript
-```js
+```typescript
 nfc.enabled().then((on) => {
     console.log(on ? "Yes" : "No");
 });
@@ -87,8 +103,8 @@ nfc.setOnTagDiscoveredListener(function(data) {
 ```
 
 ##### TypeScript
-```js
-import {NfcTagData} from "nativescript-nfc";
+```typescript
+import { NfcTagData } from "nativescript-nfc";
 
 nfc.setOnTagDiscoveredListener((data: NfcTagData) => {
   console.log("Discovered a tag with ID " + data.id);  
@@ -100,7 +116,7 @@ nfc.setOnTagDiscoveredListener((data: NfcTagData) => {
 You can pass in `null` instead of a callback function if you want to remove the listener.
 
 ##### TypeScript
-```js
+```typescript
 nfc.setOnTagDiscoveredListener(null).then(() => {
     console.log("OnTagDiscovered listener removed");
 });
@@ -126,8 +142,8 @@ nfc.setOnNdefDiscoveredListener(function(data) {
 ```
 
 ##### TypeScript
-```js
-import {NfcNdefData} from "nativescript-nfc";
+```typescript
+import { NfcNdefData } from "nativescript-nfc";
 
 nfc.setOnNdefDiscoveredListener((data: NfcNdefData) => {
   // data.message is an array of records, so:
@@ -145,13 +161,13 @@ nfc.setOnNdefDiscoveredListener((data: NfcNdefData) => {
 You can pass in `null` instead of a callback function if you want to remove the listener.
 
 ##### TypeScript
-```js
+```typescript
 nfc.setOnNdefDiscoveredListener(null).then(() => {
     console.log("OnNdefDiscovered listener removed");
 });
 ```
 
-### `writeTag`
+### `writeTag` (Android only)
 You can write to a tag as well with this plugin. At the moment you can write either plain text or a Uri. The latter will launch the browser on an Android device if the tag is scanned (unless an app handling Ndef tags itself is active at that moment, like an app with this plugin - so just close the app to test this feature).
 
 Note that you can write multiple items to an NFC tag so the input is an object with Arrays of various types (`textRecord` and `uriRecord` are currently supported). See the [TypeScript definition](https://github.com/EddyVerbruggen/nativescript-nfc/blob/master/nfc.common.d.ts#L10-L13) for details, but these examples should get you going:
@@ -177,7 +193,7 @@ nfc.writeTag({
 ```
 
 ##### Writing a uriRecord in TypeScript
-```js
+```typescript
 nfc.writeTag({
     uriRecords: [
         {
@@ -192,7 +208,7 @@ nfc.writeTag({
 });
 ```
 
-### `eraseTag`
+### `eraseTag` (Android only)
 And finally, you can erase all content from a tag if you like.
 
 ##### JavaScript
@@ -205,7 +221,7 @@ nfc.eraseTag().then(
 ```
 
 ##### TypeScript
-```js
+```typescript
 nfc.eraseTag().then(() => {
     console.log("Tag erased");
 });

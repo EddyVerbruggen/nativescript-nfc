@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "noEmitOnError": true,
+    "noEmitHelpers": true,
+    "sourceMap": false,
+    "removeComments": true,
+    "declaration": true,
+    "experimentalDecorators": true,
+    "target": "es5",
+    "module": "commonjs",
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "skipLibCheck": true,
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "./node_modules/tns-core-modules/*",
+        "./node_modules/*"
+      ]
+    }
+  },
+  "include": [
+    "index.d.ts",
+    "references.d.ts",
+    "nfc.android.ts",
+    "nfc.ios.ts"
+  ]
+}

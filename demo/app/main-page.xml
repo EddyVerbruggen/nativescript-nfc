@@ -2,33 +2,32 @@
   <ScrollView>
     <StackLayout>
 
-      <Image margin="0" src="~/res/nfc.png" width="60%" align="center" />
+      <Image margin="0" src="~/res/nfc.png" width="60%" horizontalAlignment="center" />
 
       <StackLayout orientation="horizontal" width="100%">
-        <Button text="NFC available?" tap="{{ doCheckAvailable }}" cssClass="button button-a" width="40%" />
-        <Button text="NFC enabled?" tap="{{ doCheckEnabled }}" cssClass="button button-a" width="40%" align="right" />
+        <Button text="NFC available?" tap="{{ doCheckAvailable }}" class="button button-a" width="40%" />
+        <Button text="NFC enabled?" tap="{{ doCheckEnabled }}" class="button button-a" width="40%" />
       </StackLayout>
 
       <StackLayout orientation="horizontal" width="100%">
-        <Button text="set tag listener" tap="{{ doStartTagListener }}" cssClass="button" width="40%"/>
-        <Button text="clear tag listner" tap="{{ doStopTagListener }}" cssClass="button" width="40%" align="right"/>
+        <Button text="set tag listener" tap="{{ doStartTagListener }}" class="button" width="40%"/>
+        <Button text="clear tag listner" tap="{{ doStopTagListener }}" class="button" width="40%"/>
       </StackLayout>
 
       <StackLayout orientation="horizontal" width="100%">
-        <Button text="set ndef listener" tap="{{ doStartNdefListener }}" cssClass="button" width="40%"/>
-        <Button text="clear ndef listener" tap="{{ doStopNdefListener }}" cssClass="button" width="40%" align="right"/>
+        <Button text="set ndef listener" tap="{{ doStartNdefListener }}" class="button" width="40%"/>
+        <Button text="clear ndef listener" tap="{{ doStopNdefListener }}" class="button" width="40%"/>
       </StackLayout>
 
       <StackLayout orientation="horizontal" width="100%">
-        <Button text="write Text" tap="{{ doWriteText }}" cssClass="button button-d" width="40%" />
-        <Button text="write Uri" tap="{{ doWriteUri }}" cssClass="button button-d" width="40%" align="right" />
+        <Button text="write Text" tap="{{ doWriteText }}" class="button button-d" width="40%" />
+        <Button text="write Uri" tap="{{ doWriteUri }}" class="button button-d" width="40%" />
       </StackLayout>
 
       <StackLayout orientation="horizontal" width="100%">
-        <Button text="erase tag" tap="{{ doEraseTag }}" cssClass="button button-c" width="40%" />
-        <Label text="{{ lastNdefDiscovered }}" cssClass="message message-ndef" width="40%" />
+        <Button text="erase tag" tap="{{ doEraseTag }}" class="button button-c" width="40%" />
+        <Label text="{{ lastNdefDiscovered }}" class="message message-ndef" width="40%" />
       </StackLayout>
-
 
     </StackLayout>
   </ScrollView>

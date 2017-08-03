@@ -23,6 +23,8 @@ tns plugin add nativescript-nfc
 ## iOS Setup
 iOS requires you to enable 'NFC Tag Reading' for your App ID [here](https://developer.apple.com/account/ios/identifier/bundle).
 
+Note that to be able to use NFC you'll need to build with Xcode 9 (beta), so open Xcode and run the app from there.
+
 ## Demo app
 Want to dive in quickly? Check out [the demo](https://github.com/EddyVerbruggen/nativescript-nfc/tree/master/demo)!
 

@@ -1,8 +1,8 @@
 import { NfcApi, NfcTagData, NfcNdefData, NfcNdefRecord, WriteTagOptions } from "./nfc.common";
-import * as utils from "utils/utils";
+import * as utils from "tns-core-modules/utils/utils";
 
-import * as application from "application";
-import * as frame from "ui/frame";
+import * as application from "tns-core-modules/application";
+import * as frame from "tns-core-modules/ui/frame";
 
 declare let Array: any;
 

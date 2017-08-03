@@ -17,14 +17,7 @@
     "noImplicitAny": false,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
-    "noFallthroughCasesInSwitch": true,
-    "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "*": [
-        "./node_modules/tns-core-modules/*"
-      ]
-    }
+    "noFallthroughCasesInSwitch": true
   },
   "exclude": [
     "node_modules"

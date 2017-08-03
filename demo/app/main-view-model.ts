@@ -1,4 +1,4 @@
-import { Observable } from "data/observable";
+import { Observable } from "tns-core-modules/data/observable";
 import { Nfc, NfcTagData, NfcNdefData } from "nativescript-nfc";
 
 export class HelloWorldModel extends Observable {

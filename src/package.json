@@ -14,11 +14,11 @@
     "tsc": "tsc -skipLibCheck",
     "test": "npm run test.android",
     "test.android": "npm i && npm run tsc && npm run tslint && cd ../demo && tns build android && tns test android --justlaunch",
-    "test.ios": "echo '!!!! run this on a device, a simulator will not work !!!!' && npm i && npm run tsc && npm run tslint && cd ../demo && tns build ios && tns test ios --justlaunch",
+    "test.ios": "npm i && npm run tsc && npm run tslint && cd ../demo && tns build ios && tns test ios --justlaunch",
     "tslint": "cd .. && tslint \"**/*.ts\" --config tslint.json --exclude \"**/node_modules/**\"",
     "plugin.link": "npm link && cd ../demo && npm link nativescript-nfc && cd ../src",
     "plugin.tscwatch": "npm run tsc -- -w",
-    "demo.ios": "echo '!!!! run this on a device, a simulator will not work !!!!' && npm i && npm run tsc && cd ../demo && tns run ios --syncAllFiles",
+    "demo.ios": "npm i && npm run tsc && cd ../demo && tns run ios --syncAllFiles",
     "demo.android": "npm i && npm run tsc && cd ../demo && tns run android --syncAllFiles",
     "clean": "rimraf node_modules && cd ../demo && rimraf hooks node_modules platforms && cd ../src && npm run plugin.link"
   },

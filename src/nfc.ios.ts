@@ -1,27 +1,24 @@
 import { NfcApi, NfcNdefData, NfcTagData, WriteTagOptions } from "./nfc.common";
 
-// Note that this needs to be compiled with iOS 11 SDK because of NFCNDEFReaderSessionDelegate
-
 // iOS 11 classes (not part of platform declarations, so defined those here)
 declare const NFCNDEFReaderSession, NFCNDEFReaderSessionDelegate, NFCNDEFMessage: any;
 
 // TODO https://developer.apple.com/documentation/corenfc?changes=latest_major&language=objc
 export class Nfc implements NfcApi {
 
-  private _available(): boolean {
-    const bla = NFCNDEFReaderSession;
-    console.log(">>> blaa " + bla);
+  private static _available(): boolean {
+    // this class is not available when build with iOS < 11
     return NSClassFromString("NFCNDEFReaderSession") !== null;  };
 
   public available(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      resolve(this._available());
+      resolve(Nfc._available());
     });
   };
 
   public enabled(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      resolve(this._available());
+      resolve(Nfc._available());
     });
   };
 
@@ -33,7 +30,7 @@ export class Nfc implements NfcApi {
 
   public setOnNdefDiscoveredListener(arg: (data: NfcNdefData) => void): Promise<any> {
     return new Promise((resolve, reject) => {
-      if (!this._available()) {
+      if (!Nfc._available()) {
         reject();
         return;
       }

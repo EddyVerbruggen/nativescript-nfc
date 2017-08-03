@@ -1,4 +1,4 @@
-import {NfcApi, NfcTagData, NfcNdefData, NfcNdefRecord, WriteTagOptions} from "./nfc.common";
+import { NfcApi, NfcTagData, NfcNdefData, NfcNdefRecord, WriteTagOptions } from "./nfc.common";
 import * as utils from "utils/utils";
 
 import * as application from "application";

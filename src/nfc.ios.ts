@@ -3,12 +3,23 @@ import { NfcApi, NfcNdefData, NfcTagData, WriteTagOptions } from "./nfc.common";
 // iOS 11 classes (not part of platform declarations, so defined those here)
 declare const NFCNDEFReaderSession, NFCNDEFReaderSessionDelegate, NFCNDEFMessage: any;
 
+
 // TODO https://developer.apple.com/documentation/corenfc?changes=latest_major&language=objc
 export class Nfc implements NfcApi {
 
   private static _available(): boolean {
-    // this class is not available when build with iOS < 11
-    return NSClassFromString("NFCNDEFReaderSession") !== null;  };
+    const isIOS11OrUp = NSObject.instancesRespondToSelector("accessibilityAttributedLabel");
+    if (isIOS11OrUp) {
+      try {
+        return NFCNDEFReaderSession.readingAvailable;
+      } catch (e) {
+        console.log(">>> e: " + e);
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
 
   public available(): Promise<boolean> {
     return new Promise((resolve, reject) => {
@@ -35,12 +46,17 @@ export class Nfc implements NfcApi {
         return;
       }
 
-      const delegate = NFCNDEFReaderSessionDelegateImpl.new().initWithResultCallback(() => { console.log('ok')});
-      const queue = null;
-      const invalidateAfterFirstRead = false;
-      NFCNDEFReaderSession.initWithDelegateQueueInvalidateAfterFirstRead(delegate, queue, invalidateAfterFirstRead);
+      try {
+        const delegate = NFCNDEFReaderSessionDelegateImpl.new().initWithResultCallback((data) => { console.log('data read: ' + data)});
+        const queue = null; // not sure this is allowed
+        const invalidateAfterFirstRead = false;
+        const session = NFCNDEFReaderSession.alloc().initWithDelegateQueueInvalidateAfterFirstRead(delegate, queue, invalidateAfterFirstRead);
+        session.beginSession();
 
-      resolve();
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
     });
   };
 
@@ -62,11 +78,15 @@ export class Nfc implements NfcApi {
     });
   };
 }
-
 class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFReaderSessionDelegate */ {
-  public static ObjCProtocols = [NSClassFromString("NFCNDEFReaderSessionDelegate")];
+  public static ObjCProtocols = [];
 
   static new(): NFCNDEFReaderSessionDelegateImpl {
+    try {
+      NFCNDEFReaderSessionDelegateImpl.ObjCProtocols.push(NFCNDEFReaderSessionDelegate)
+    } catch (e) {
+      console.log(">>> delegate new: " + e);
+    }
     return <NFCNDEFReaderSessionDelegateImpl>super.new();
   }
 
@@ -80,9 +100,8 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
   // Called when the reader session finds a new tag
   readerSessionDidDetectNDEFs(session: any /* NFCNDEFReaderSession */, messages: NSArray<any /*NFCNDEFMessage>*/>): void {
     console.log(">> delegate readerSessionDidDetectNDEFs: " + messages);
-    // if (result >= 0 && this.deviceConnectedCallback) {
-    //   this.deviceConnectedCallback(deviceInfo.getName());
-    // }
+    // "(\n    \"TNF=1, Payload Type=<54>, Payload ID=<>, Payload=<02656e48 69207468 65726521>\",\n    \"TNF=1, Payload Type=<54>, Payload ID=<>, Payload=<02656e57 65642046 65622032 35203230 31352031 313a3334 3a323120 474d542b 30313030 20284345 5429>\",\n    \"TNF=1, Payload Type=<55>, Payload ID=<>, Payload=<03706c75 67696e73 2e74656c 6572696b 2e636f6d 2f706c75 67696e2f 6e6663>\"\n)"
+    this.resultCallback(messages);
   }
 
   // Called when the reader session becomes invalid due to the specified error

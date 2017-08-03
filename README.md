@@ -33,7 +33,7 @@ You can run the demo app from the root of the project by typing `npm run demo.io
 ## API
 
 ### `available`
-Not all devices have an NFC chip we can tap in to, so check this beforehand:
+Not all devices have an NFC chip we can tap in to (and on iOS you need to build with Xcode 9+), so check this beforehand:
 
 ##### JavaScript
 ```js

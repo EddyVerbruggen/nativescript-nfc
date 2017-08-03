@@ -52,6 +52,8 @@
     "rimraf": "^2.5.0",
     "tslint": "^5.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "nativescript-custom-entitlements": "git+https://github.com/EddyVerbruggen/nativescript-custom-entitlements.git"
+  },
   "bootstrapper": "nativescript-plugin-seed"
 }

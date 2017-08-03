@@ -11,17 +11,16 @@
     }
   },
   "scripts": {
-    "build": "tsc",
-    "demo.ios": "npm run preparedemo && cd ../demo && tns run ios --emulator",
-    "demo.ios.device": "npm run preparedemo && cd ../demo && tns platform remove ios && tns run ios",
-    "demo.android": "npm run preparedemo && cd ../demo && tns platform remove android && tns run android --justlaunch",
-    "test": "npm run tslint && npm run tslint.demo && cd ../demo && tns build ios && tns build android",
-    "test.ios": "cd ../demo && tns platform remove ios && tns test ios --emulator",
-    "test.ios.device": "cd ../demo && tns platform remove ios && tns test ios",
-    "test.android": "cd ../demo && tns platform remove android && tns test android --justlaunch",
-    "preparedemo": "npm run build && cd ../demo && tns plugin remove nativescript-nfc && tns plugin add ../src && tns install",
-    "tslint": "tslint *.ts",
-    "tslint.demo": "tslint ../demo/app/*.ts"
+    "tsc": "tsc -skipLibCheck",
+    "test": "npm run test.android",
+    "test.android": "npm i && npm run tsc && npm run tslint && cd ../demo && tns build android && tns test android --justlaunch",
+    "test.ios": "echo '!!!! run this on a device, a simulator will not work !!!!' && npm i && npm run tsc && npm run tslint && cd ../demo && tns build ios && tns test ios --justlaunch",
+    "tslint": "cd .. && tslint \"**/*.ts\" --config tslint.json --exclude \"**/node_modules/**\"",
+    "plugin.link": "npm link && cd ../demo && npm link nativescript-nfc && cd ../src",
+    "plugin.tscwatch": "npm run tsc -- -w",
+    "demo.ios": "echo '!!!! run this on a device, a simulator will not work !!!!' && npm i && npm run tsc && cd ../demo && tns run ios --syncAllFiles",
+    "demo.android": "npm i && npm run tsc && cd ../demo && tns run android --syncAllFiles",
+    "clean": "rimraf node_modules && cd ../demo && rimraf hooks node_modules platforms && cd ../src && npm run plugin.link"
   },
   "repository": {
     "type": "git",
@@ -32,7 +31,8 @@
     "NativeScript",
     "Android",
     "iOS",
-    "NFC"
+    "NFC",
+    "NDEF"
   ],
   "author": {
     "name": "Eddy Verbruggen",
@@ -45,10 +45,13 @@
   "homepage": "https://github.com/EddyVerbruggen/nativescript-nfc",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "nativescript-dev-typescript": "~0.5.0",
-    "tns-core-modules": "~3.0.0",
-    "tns-platform-declarations": "~3.0.0",
+    "tns-core-modules": "^3.1.0",
+    "tns-platform-declarations": "^3.1.0",
     "typescript": "~2.3.0",
-    "tslint": "~5.0.0"
-  }
+    "prompt": "^1.0.0",
+    "rimraf": "^2.5.0",
+    "tslint": "^5.0.0"
+  },
+  "dependencies": {},
+  "bootstrapper": "nativescript-plugin-seed"
 }

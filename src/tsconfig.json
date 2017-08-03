@@ -1,31 +1,33 @@
 {
   "compilerOptions": {
-    "noEmitOnError": true,
-    "noEmitHelpers": true,
-    "sourceMap": false,
-    "removeComments": true,
-    "declaration": true,
-    "experimentalDecorators": true,
     "target": "es5",
     "module": "commonjs",
-    "lib": [
-      "es6",
-      "dom"
-    ],
+    "declaration": true,
+    "removeComments": true,
+    "noLib": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["es6", "dom"],
+    "sourceMap": true,
+    "pretty": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noEmitHelpers": true,
+    "noEmitOnError": false,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": false,
+    "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "rootDir": ".",
     "baseUrl": ".",
     "paths": {
       "*": [
-        "./node_modules/tns-core-modules/*",
-        "./node_modules/*"
+        "./node_modules/tns-core-modules/*"
       ]
     }
   },
-  "include": [
-    "index.d.ts",
-    "references.d.ts",
-    "nfc.android.ts",
-    "nfc.ios.ts"
-  ]
+  "exclude": [
+    "node_modules"
+  ],
+  "compileOnSave": false
 }

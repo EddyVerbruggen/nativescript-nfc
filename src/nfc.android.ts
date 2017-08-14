@@ -322,7 +322,9 @@ export class Nfc implements NfcApi {
     application.android.on(application.AndroidApplication.activityResumedEvent, function (args: application.AndroidActivityEventData) {
       let resumingNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(args.activity);
       if (resumingNfcAdapter !== null && !args.activity.isFinishing()) {
-        resumingNfcAdapter.enableForegroundDispatch(args.activity, that.pendingIntent, that.intentFilters, that.techLists);
+        setTimeout(() => {
+          resumingNfcAdapter.enableForegroundDispatch(args.activity, that.pendingIntent, that.intentFilters, that.techLists);
+        }, 500);
       }
     });
   }

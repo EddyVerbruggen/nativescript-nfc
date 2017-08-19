@@ -1,19 +1,21 @@
-import { Observable } from "tns-core-modules/data/observable";
+import * as observable from "tns-core-modules/data/observable";
+import { alert } from "tns-core-modules/ui/dialogs";
 import { Nfc, NfcTagData, NfcNdefData } from "nativescript-nfc";
 
-export class HelloWorldModel extends Observable {
-  public message: string;
+export class HelloWorldModel extends observable.Observable {
+  public lastNdefDiscovered: string = "";
   private nfc: Nfc;
 
   constructor() {
     super();
+    console.log(">>> creating Nfc object");
     this.nfc = new Nfc();
   }
 
   public doCheckAvailable() {
     this.nfc.available().then((avail) => {
       console.log("Available? " + avail);
-      alert(avail);
+      alert("" + avail);
     }, (err) => {
       alert(err);
     });
@@ -22,7 +24,7 @@ export class HelloWorldModel extends Observable {
   public doCheckEnabled() {
     this.nfc.enabled().then((on) => {
       console.log("Enabled? " + on);
-      alert(on);
+      alert("" + on);
     }, (err) => {
       alert(err);
     });
@@ -49,17 +51,31 @@ export class HelloWorldModel extends Observable {
   }
 
   public doStartNdefListener() {
-    let that = this;
+    const that = this;
     this.nfc.setOnNdefDiscoveredListener((data: NfcNdefData) => {
-      // data.message is an array of records, so:
       if (data.message) {
-        for (let m in data.message) {
-          let record = data.message[m];
+        let tagMessages = [];
+        // data.message is an array of records, so:
+        data.message.forEach(record => {
           console.log("Ndef discovered! Message record: " + record.payloadAsString);
-          that.set("lastNdefDiscovered", record.payloadAsString);
-        }
+          console.log(">>> record.id: " + record.id);
+          console.log(">>> record.tnf: " + record.tnf);
+          console.log(">>> record.type: " + record.type);
+          console.log(">>> record.payload: " + record.payload);
+          console.log(">>> record.payloadAsHexString: " + record.payloadAsHexString);
+          console.log(">>> record.payloadAsStringWithPrefix: " + record.payloadAsStringWithPrefix);
+
+          tagMessages.push(record.payloadAsString);
+        });
+        that.set("lastNdefDiscovered", "Read: " + tagMessages.join(", "));
+        console.log("Read: " + tagMessages.join(", "));
+        alert({
+          title: "Ndef tag contents read:",
+          message: " - " + tagMessages.join("\n - "),
+          okButtonText: "OK :)"
+        });
       }
-    }).then(() => {
+    }, {stopAfterFirstRead: true}).then(() => {
       console.log("OnNdefDiscoveredListener set");
     }, (err) => {
       alert(err);

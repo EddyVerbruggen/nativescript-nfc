@@ -25,6 +25,30 @@ iOS requires you to enable 'NFC Tag Reading' for your App ID [here](https://deve
 
 Note that to be able to use NFC you'll need to build with Xcode 9 (beta), so open Xcode and run the app from there.
 
+Also, add this to your `App_Resources/iOS/*.entitlements` file:
+ 
+```xml
+	<key>com.apple.developer.nfc.readersession.formats</key>
+	<array>
+		<string>NDEF</string>
+	</array>
+``` 
+
+The [demo app](demo) has this:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>com.apple.developer.nfc.readersession.formats</key>
+	<array>
+		<string>NDEF</string>
+	</array>
+</dict>
+</plist>
+```
+
 ## Demo app
 Want to dive in quickly? Check out [the demo](https://github.com/EddyVerbruggen/nativescript-nfc/tree/master/demo)!
 

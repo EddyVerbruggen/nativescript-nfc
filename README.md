@@ -13,7 +13,7 @@
 [twitter-image]:https://img.shields.io/twitter/follow/eddyverbruggen.svg?style=social&label=Follow%20me
 [twitter-url]:https://twitter.com/eddyverbruggen
 
-<img src="https://raw.githubusercontent.com/EddyVerbruggen/nativescript-nfc/master/screenshots/ios-demo-before-scan.png" width="180px" height="320px"/> <img src="https://raw.githubusercontent.com/EddyVerbruggen/nativescript-nfc/master/screenshots/ios-demo-after-scan.png" width="180px" height="320px"/> <img src="https://raw.githubusercontent.com/EddyVerbruggen/nativescript-nfc/master/screenshots/android-demo.png" width="180px" height="320px"/>
+<img src="https://raw.githubusercontent.com/EddyVerbruggen/nativescript-nfc/master/screenshots/ios-demo-before-scan.PNG" width="180px" height="320px"/> <img src="https://raw.githubusercontent.com/EddyVerbruggen/nativescript-nfc/master/screenshots/ios-demo-after-scan.PNG" width="180px" height="320px"/> <img src="https://raw.githubusercontent.com/EddyVerbruggen/nativescript-nfc/master/screenshots/android-demo.png" width="180px" height="320px"/>
 
 ## Installation
 From the command prompt go to your app's root folder and execute:

@@ -13,6 +13,8 @@
 [twitter-image]:https://img.shields.io/twitter/follow/eddyverbruggen.svg?style=social&label=Follow%20me
 [twitter-url]:https://twitter.com/eddyverbruggen
 
+<img src="https://raw.githubusercontent.com/EddyVerbruggen/nativescript-nfc/master/screenshots/ios-demo-before-scan.png" width="180px" height="320px"/> <img src="https://raw.githubusercontent.com/EddyVerbruggen/nativescript-nfc/master/screenshots/ios-demo-after-scan.png" width="180px" height="320px"/> <img src="https://raw.githubusercontent.com/EddyVerbruggen/nativescript-nfc/master/screenshots/android-demo.png" width="180px" height="320px"/>
+
 ## Installation
 From the command prompt go to your app's root folder and execute:
 
@@ -20,7 +22,7 @@ From the command prompt go to your app's root folder and execute:
 tns plugin add nativescript-nfc
 ```
 
-## iOS Setup (Soon to be released!)
+## iOS Setup
 iOS requires you to enable 'NFC Tag Reading' for your App ID [here](https://developer.apple.com/account/ios/identifier/bundle).
 
 Note that to be able to use NFC you'll need to build with Xcode 9 (beta), so open Xcode and run the app from there.
@@ -49,12 +51,10 @@ The [demo app](demo) has this:
 </plist>
 ```
 
-## Demo app
+## Demo app (those screenshots above)
 Want to dive in quickly? Check out [the demo](https://github.com/EddyVerbruggen/nativescript-nfc/tree/master/demo)!
 
 You can run the demo app from the root of the project by typing `npm run demo.ios.device` or `npm run demo.android`.
-
-<img src="https://raw.githubusercontent.com/EddyVerbruggen/nativescript-nfc/master/screenshots/android-demo.png" width="360px"/>
 
 ## API
 
@@ -108,46 +108,6 @@ nfc.enabled().then((on) => {
 });
 ```
 
-### `setOnTagDiscoveredListener`
-You may want to get notified when an NFC tag was discovered.
-You can pass in a callback function that gets invoked when that is the case.
-
-Note that Ndef tags (which you may have previously written data to) are not returned here,
-but through `setOnNdefDiscoveredListener` instead.
-
-See the [definition of NfcTagData](https://github.com/EddyVerbruggen/nativescript-nfc/blob/master/nfc.common.d.ts#L14-L17) to learn what is returned to the callback function.
-
-##### JavaScript
-```js
-nfc.setOnTagDiscoveredListener(function(data) {
-  console.log("Discovered a tag with ID " + data.id);
-}).then(
-  function() {
-    console.log("OnTagDiscovered listener added");
-  }
-);
-```
-
-##### TypeScript
-```typescript
-import { NfcTagData } from "nativescript-nfc";
-
-nfc.setOnTagDiscoveredListener((data: NfcTagData) => {
-  console.log("Discovered a tag with ID " + data.id);  
-}).then(() => {
-    console.log("OnTagDiscovered listener added");
-});
-```
-
-You can pass in `null` instead of a callback function if you want to remove the listener.
-
-##### TypeScript
-```typescript
-nfc.setOnTagDiscoveredListener(null).then(() => {
-    console.log("OnTagDiscovered listener removed");
-});
-```
-
 ### `setOnNdefDiscoveredListener`
 You may want to get notified when an Ndef tag was discovered.
 You can pass in a callback function that gets invoked when that is the case.
@@ -190,6 +150,46 @@ You can pass in `null` instead of a callback function if you want to remove the 
 ```typescript
 nfc.setOnNdefDiscoveredListener(null).then(() => {
     console.log("OnNdefDiscovered listener removed");
+});
+```
+
+### `setOnTagDiscoveredListener` (Android only)
+You may want to get notified when an NFC tag was discovered.
+You can pass in a callback function that gets invoked when that is the case.
+
+Note that Ndef tags (which you may have previously written data to) are not returned here,
+but through `setOnNdefDiscoveredListener` instead.
+
+See the [definition of NfcTagData](https://github.com/EddyVerbruggen/nativescript-nfc/blob/master/nfc.common.d.ts#L14-L17) to learn what is returned to the callback function.
+
+##### JavaScript
+```js
+nfc.setOnTagDiscoveredListener(function(data) {
+  console.log("Discovered a tag with ID " + data.id);
+}).then(
+  function() {
+    console.log("OnTagDiscovered listener added");
+  }
+);
+```
+
+##### TypeScript
+```typescript
+import { NfcTagData } from "nativescript-nfc";
+
+nfc.setOnTagDiscoveredListener((data: NfcTagData) => {
+  console.log("Discovered a tag with ID " + data.id);  
+}).then(() => {
+    console.log("OnTagDiscovered listener added");
+});
+```
+
+You can pass in `null` instead of a callback function if you want to remove the listener.
+
+##### TypeScript
+```typescript
+nfc.setOnTagDiscoveredListener(null).then(() => {
+    console.log("OnTagDiscovered listener removed");
 });
 ```
 

@@ -33,19 +33,19 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
     return new Promise((resolve, reject) => {
       resolve(Nfc._available());
     });
-  };
+  }
 
   public enabled(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       resolve(Nfc._available());
     });
-  };
+  }
 
   public setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any> {
     return new Promise((resolve, reject) => {
       resolve();
     });
-  };
+  }
 
   public setOnNdefDiscoveredListener(arg: (data: NfcNdefData) => void, options?: NdefListenerOptions): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -80,7 +80,7 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
         reject(e);
       }
     });
-  };
+  }
 
   invalidateSession(): void {
     if (this.session) {
@@ -93,19 +93,19 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
     return new Promise((resolve, reject) => {
       resolve();
     });
-  };
+  }
 
   public writeTag(arg: WriteTagOptions): Promise<any> {
     return new Promise((resolve, reject) => {
       reject("Not available on iOS");
     });
-  };
+  }
 
   public eraseTag(): Promise<any> {
     return new Promise((resolve, reject) => {
       reject("Not available on iOS");
     });
-  };
+  }
 }
 
 class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFReaderSessionDelegate */ {
@@ -117,7 +117,7 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
 
   public static new(): NFCNDEFReaderSessionDelegateImpl {
     try {
-      NFCNDEFReaderSessionDelegateImpl.ObjCProtocols.push(NFCNDEFReaderSessionDelegate)
+      NFCNDEFReaderSessionDelegateImpl.ObjCProtocols.push(NFCNDEFReaderSessionDelegate);
     } catch (ignore) {
     }
     return <NFCNDEFReaderSessionDelegateImpl>super.new();
@@ -142,7 +142,7 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
 
   // Called when the reader session becomes invalid due to the specified error
   readerSessionDidInvalidateWithError(session: any /* NFCNDEFReaderSession */, error: NSError): void {
-    this._owner.get().invalidateSession()
+    this._owner.get().invalidateSession();
   }
 
   private ndefToJson(message: any /*NFCNDEFMessage */): NfcNdefData {
@@ -204,9 +204,9 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
   }
 
   private hexToDec(hex) {
-    var result = 0, digitValue;
+    let result = 0, digitValue;
     hex = hex.toLowerCase();
-    for (var i = 0; i < hex.length; i++) {
+    for (let i = 0; i < hex.length; i++) {
       digitValue = '0123456789abcdefgh'.indexOf(hex[i]);
       result = result * 16 + digitValue;
     }
@@ -226,9 +226,9 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
   }
 
   private hex2a(hexx) {
-    var hex = hexx.toString();//force conversion
-    var str = '';
-    for (var i = 0; i < hex.length; i += 2)
+    const hex = hexx.toString(); // force conversion
+    let str = '';
+    for (let i = 0; i < hex.length; i += 2)
       str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
     return str;
   }
@@ -248,11 +248,11 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
   }
 
   private hexToDecArray(hexArray): any {
-    var resultArray = [];
-    for (var i = 0; i < hexArray.length; i++) {
-      var result = 0, digitValue;
-      var hex = hexArray[i].toLowerCase();
-      for (var j = 0; j < hex.length; j++) {
+    let resultArray = [];
+    for (let i = 0; i < hexArray.length; i++) {
+      let result = 0, digitValue;
+      const hex = hexArray[i].toLowerCase();
+      for (let j = 0; j < hex.length; j++) {
         digitValue = '0123456789abcdefgh'.indexOf(hex[j]);
         result = result * 16 + digitValue;
       }

@@ -9,14 +9,14 @@ matrix:
         - android-wait-for-emulator
       before_install:
         - nvm install 6
-      script: npm run test.android
+      script: npm run test
 
 android:
   components:
     - tools
     - platform-tools
-    - build-tools-23.0.2
-    - android-23
+    - build-tools-24.0.2
+    - android-24
     - extra-android-m2repository
     - sys-img-armeabi-v7a-android-21
 

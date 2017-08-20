@@ -354,14 +354,14 @@ export class Nfc implements NfcApi {
       let nfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(utils.ad.getApplicationContext());
       resolve(nfcAdapter !== null);
     });
-  };
+  }
 
   public enabled(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       let nfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(utils.ad.getApplicationContext());
       resolve(nfcAdapter !== null && nfcAdapter.isEnabled());
     });
-  };
+  }
 
   public setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any> {
     let that = this;
@@ -369,7 +369,7 @@ export class Nfc implements NfcApi {
       onTagDiscoveredListener = (arg === null ? null : arg);
       resolve();
     });
-  };
+  }
 
   public setOnNdefDiscoveredListener(arg: (data: NfcNdefData) => void, options?: NdefListenerOptions): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -377,7 +377,7 @@ export class Nfc implements NfcApi {
       onNdefDiscoveredListener = (arg === null ? null : arg);
       resolve();
     });
-  };
+  }
 
   public eraseTag(): Promise<any> {
     let that = this;
@@ -410,7 +410,7 @@ export class Nfc implements NfcApi {
         reject(errorMessage);
       }
     });
-  };
+  }
 
   public writeTag(arg: WriteTagOptions): Promise<any> {
     let that = this;
@@ -444,7 +444,7 @@ export class Nfc implements NfcApi {
         reject(ex);
       }
     });
-  };
+  }
 
   private writeNdefMessage(message: android.nfc.NdefMessage, tag: android.nfc.Tag): string {
     let ndef = android.nfc.tech.Ndef.get(tag);

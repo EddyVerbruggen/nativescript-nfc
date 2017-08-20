@@ -4,8 +4,7 @@ matrix:
       language: android
       jdk: oraclejdk8
       before_script:
-        - android list targets
-        - echo no | android create avd --force -n test -t android-25
+        - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a --skin 480x800
         - emulator -avd test -no-audio -no-window &
         - android-wait-for-emulator
       before_install:
@@ -19,7 +18,6 @@ android:
     - build-tools-25.0.2
     - android-25
     - extra-android-m2repository
-    - sys-img-armeabi-v7a-android-21
 
 install:
     - echo no | npm install -g nativescript

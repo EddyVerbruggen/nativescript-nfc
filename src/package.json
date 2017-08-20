@@ -12,9 +12,7 @@
   },
   "scripts": {
     "build": "tsc -skipLibCheck",
-    "test": "npm run test.android",
-    "test.android": "npm i && npm run build && npm run tslint && cd ../demo && tns build android && tns test android --justlaunch",
-    "test.ios": "npm i && npm run build && npm run tslint && cd ../demo && tns build ios",
+    "test": "npm i && cd ../demo && npm i && cd ../src && npm run build && npm run tslint && cd demo && tns build android",
     "tslint": "cd .. && tslint \"**/*.ts\" --config tslint.json --exclude \"**/node_modules/**\" --exclude \"demo/platforms/**\"",
     "plugin.link": "npm link && cd ../demo && npm link nativescript-nfc && cd ../src",
     "plugin.tscwatch": "npm run build -- -w",

@@ -22,7 +22,6 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
       try {
         return NFCNDEFReaderSession.readingAvailable;
       } catch (e) {
-        console.log(">>> e: " + e);
         return false;
       }
     } else {
@@ -119,8 +118,7 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
   public static new(): NFCNDEFReaderSessionDelegateImpl {
     try {
       NFCNDEFReaderSessionDelegateImpl.ObjCProtocols.push(NFCNDEFReaderSessionDelegate)
-    } catch (e) {
-      console.log(">>> delegate new: " + e);
+    } catch (ignore) {
     }
     return <NFCNDEFReaderSessionDelegateImpl>super.new();
   }
@@ -135,13 +133,7 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
 
   // Called when the reader session finds a new tag
   readerSessionDidDetectNDEFs(session: any /* NFCNDEFReaderSession */, messages: NSArray<any /*NFCNDEFMessage>*/>): void {
-    // TODO align with Android, and decode (the first one?). Inspiration: https://github.com/scottire/phonegap-nfc/blob/master/src/ios/NFC.m
-    console.log(">> delegate readerSessionDidDetectNDEFs: " + messages);
-    // "(\n    \"TNF=1, Payload Type=<54>, Payload ID=<>, Payload=<02656e48 69207468 65726521>\",\n    \"TNF=1, Payload Type=<54>, Payload ID=<>, Payload=<02656e57 65642046 65622032 35203230 31352031 313a3334 3a323120 474d542b 30313030 20284345 5429>\",\n    \"TNF=1, Payload Type=<55>, Payload ID=<>, Payload=<03706c75 67696e73 2e74656c 6572696b 2e636f6d 2f706c75 67696e2f 6e6663>\"\n)"
-
     const firstMessage = messages[0];
-    console.log(">> delegate readerSessionDidDetectNDEFs: firstMessage: " + firstMessage);
-
     if (this.options && this.options.stopAfterFirstRead) {
       setTimeout(() => this._owner.get().invalidateSession());
     }
@@ -150,7 +142,6 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
 
   // Called when the reader session becomes invalid due to the specified error
   readerSessionDidInvalidateWithError(session: any /* NFCNDEFReaderSession */, error: NSError): void {
-    console.log(">> delegate readerSessionDidInvalidateWithError: " + error.localizedDescription);
     this._owner.get().invalidateSession()
   }
 
@@ -192,11 +183,6 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
     }
 
     let b = interop.bufferFromData(record.payload);
-
-    // console.log(">> b t: " + typeof b);
-    // console.log(">> b: " + b);
-    // console.log(">> b.l: " + b.byteLength);
-    // console.log(">> buf2hexArrayNr: " + this.buf2hexArrayNr(b));
 
     return {
       tnf: record.typeNameFormat, // "typeNameFormat" (1 = well known) - see https://developer.apple.com/documentation/corenfc/nfctypenameformat?changes=latest_major&language=objc
@@ -262,22 +248,16 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
   }
 
   private hexToDecArray(hexArray): any {
-    console.log(">> hexToDecArray: " + hexArray);
     var resultArray = [];
     for (var i = 0; i < hexArray.length; i++) {
       var result = 0, digitValue;
       var hex = hexArray[i].toLowerCase();
-      // console.log(">> hex: " + hex);
       for (var j = 0; j < hex.length; j++) {
         digitValue = '0123456789abcdefgh'.indexOf(hex[j]);
         result = result * 16 + digitValue;
       }
       resultArray.push(result);
     }
-    console.log(">> resultArray: " + JSON.stringify(resultArray));
-    console.log(">> resultArray.l: " + resultArray.length);
-    console.log(">> resultArray.j: " + resultArray.join(''));
-    console.log(">> resultArray.: " + ("" + resultArray));
     return JSON.stringify(resultArray);
   }
 }

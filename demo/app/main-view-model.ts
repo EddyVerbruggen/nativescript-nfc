@@ -8,7 +8,6 @@ export class HelloWorldModel extends observable.Observable {
 
   constructor() {
     super();
-    console.log(">>> creating Nfc object");
     this.nfc = new Nfc();
   }
 
@@ -57,14 +56,11 @@ export class HelloWorldModel extends observable.Observable {
         let tagMessages = [];
         // data.message is an array of records, so:
         data.message.forEach(record => {
-          console.log("Ndef discovered! Message record: " + record.payloadAsString);
-          console.log(">>> record.id: " + record.id);
           console.log(">>> record.tnf: " + record.tnf);
           console.log(">>> record.type: " + record.type);
           console.log(">>> record.payload: " + record.payload);
+          console.log(">>> record.payloadAsString: " + record.payloadAsString);
           console.log(">>> record.payloadAsHexString: " + record.payloadAsHexString);
-          console.log(">>> record.payloadAsStringWithPrefix: " + record.payloadAsStringWithPrefix);
-
           tagMessages.push(record.payloadAsString);
         });
         that.set("lastNdefDiscovered", "Read: " + tagMessages.join(", "));

@@ -315,9 +315,7 @@ export class Nfc implements NfcApi {
     let nfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(application.android.foregroundActivity);
     if (nfcAdapter !== null) {
       if (Nfc.firstInstance) {
-        console.log(">>>> starting dispatch from constructor @ " + new Date().getTime());
         nfcAdapter.enableForegroundDispatch(application.android.foregroundActivity, this.pendingIntent, this.intentFilters, this.techLists);
-        // dispatchStarted = true;
       }
     }
 
@@ -375,7 +373,7 @@ export class Nfc implements NfcApi {
 
   public setOnNdefDiscoveredListener(arg: (data: NfcNdefData) => void, options?: NdefListenerOptions): Promise<any> {
     return new Promise((resolve, reject) => {
-      // TODO use options
+      // TODO use options, some day
       onNdefDiscoveredListener = (arg === null ? null : arg);
       resolve();
     });

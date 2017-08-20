@@ -4,6 +4,7 @@ matrix:
       language: android
       jdk: oraclejdk8
       before_script:
+        - android list targets
         - echo no | android create avd --force -n test -t android-21 -b armeabi-v7a
         - emulator -avd test -no-audio -no-window &
         - android-wait-for-emulator
@@ -15,8 +16,8 @@ android:
   components:
     - tools
     - platform-tools
-    - build-tools-24.0.2
-    - android-24
+    - build-tools-25.0.2
+    - android-25
     - extra-android-m2repository
     - sys-img-armeabi-v7a-android-21
 

@@ -56,6 +56,8 @@ Want to dive in quickly? Check out [the demo](https://github.com/EddyVerbruggen/
 
 You can run the demo app from the root of the project by typing `npm run demo.ios.device` or `npm run demo.android`.
 
+> [This is what it looks like in action on iOS](https://twitter.com/eddyverbruggen/status/899617497741185025)!
+
 ## API
 
 ### `available`

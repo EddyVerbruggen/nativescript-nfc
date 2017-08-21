@@ -9,7 +9,7 @@
     }
   },
   "dependencies": {
-    "nativescript-nfc": "file:///Users/eddyverbruggen/sandboxes/nativescript-nfc/src",
+    "nativescript-nfc": "../src",
     "nativescript-theme-core": "^1.0.4",
     "tns-core-modules": "^3.1.0"
   },

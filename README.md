@@ -51,6 +51,16 @@ The [demo app](demo) has this:
 </plist>
 ```
 
+## Android Setup
+Update the `activity` entry in your `App_Resources/Android/AndroidManifest.xml` file:
+
+```xml
+<activity
+        android:name="com.tns.NativeScriptNfcActivity"
+        android:label="@string/title_activity_kimera"
+        android:configChanges="keyboardHidden|orientation|screenSize">
+``` 
+
 ## Demo app (those screenshots above)
 Want to dive in quickly? Check out [the demo](https://github.com/EddyVerbruggen/nativescript-nfc/tree/master/demo)!
 

@@ -249,7 +249,7 @@ let nfcIntentHandler = new NfcIntentHandler();
 let dispatchStarted = false;
 
 
-@JavaProxy("com.tns.NativeScriptActivity")
+@JavaProxy("com.tns.NativeScriptNfcActivity")
 class Activity extends android.app.Activity {
   private _callbacks: frame.AndroidActivityCallbacks;
 

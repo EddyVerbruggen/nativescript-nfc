@@ -1,6 +1,6 @@
 {
   "name": "nativescript-nfc",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "NFC plugin for your NativeScript app",
   "main": "nfc",
   "typings": "index.d.ts",

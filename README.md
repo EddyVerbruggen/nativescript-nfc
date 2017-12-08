@@ -25,9 +25,9 @@ tns plugin add nativescript-nfc
 ## iOS Setup
 iOS requires you to enable 'NFC Tag Reading' for your App ID [here](https://developer.apple.com/account/ios/identifier/bundle).
 
-Note that to be able to use NFC you'll need to build with Xcode 9 (beta), so open Xcode and run the app from there.
+Note that to be able to use NFC you'll need to have Xcode 9 installed, and (at least) NativeScript version 3.2.0 (so if `tns --version` is lower, do `npm i -g nativescript`).
 
-Also, add this to your `App_Resources/iOS/*.entitlements` file:
+Also, add this to your `App_Resources/iOS/app.entitlements` (mind the name!) file:
  
 ```xml
 	<key>com.apple.developer.nfc.readersession.formats</key>
@@ -121,12 +121,15 @@ nfc.enabled().then((on) => {
 ```
 
 ### `setOnNdefDiscoveredListener`
-You may want to get notified when an Ndef tag was discovered.
-You can pass in a callback function that gets invoked when that is the case.
+You may want to get notified when an Ndef tag was discovered. You can pass in a callback function that gets invoked when that is the case.
 
 Note that blank/erased NFC tags are not returned here, but through `setOnTagDiscoveredListener` instead.
 
 See the [definition of NfcNdefData](https://github.com/EddyVerbruggen/nativescript-nfc/blob/master/nfc.common.d.ts#L27-L33) to learn what is returned to the callback function.
+
+For iOS you can pass in these options (see the TypeScript example below):
+* `stopAfterFirstRead: boolean` (default `false`): don't continue scanning after a tag was read. 
+* `scanHint: string` (default `undefined`): Show a little hint in the scan UI.
 
 ##### JavaScript
 ```js
@@ -151,6 +154,10 @@ nfc.setOnNdefDiscoveredListener((data: NfcNdefData) => {
       console.log("Ndef discovered! Message record: " + record.payloadAsString);
     }
   }
+}, {
+  // iOS-specific options
+  stopAfterFirstRead: true,
+  scanHint: "Scan a tag, baby!"
 }).then(() => {
     console.log("OnNdefDiscovered listener added");
 });

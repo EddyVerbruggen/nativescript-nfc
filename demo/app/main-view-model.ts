@@ -3,7 +3,7 @@ import { alert } from "tns-core-modules/ui/dialogs";
 import { Nfc, NfcTagData, NfcNdefData } from "nativescript-nfc";
 
 export class HelloWorldModel extends observable.Observable {
-  public lastNdefDiscovered: string = "";
+  public lastNdefDiscovered: string = "Press a button...";
   private nfc: Nfc;
 
   constructor() {
@@ -37,7 +37,7 @@ export class HelloWorldModel extends observable.Observable {
     }).then(() => {
       console.log("OnTagDiscovered Listener set");
     }, (err) => {
-      alert(err);
+      console.log(err);
     });
   }
 
@@ -45,42 +45,32 @@ export class HelloWorldModel extends observable.Observable {
     this.nfc.setOnTagDiscoveredListener(null).then(() => {
       console.log("OnTagDiscovered nulled");
     }, (err) => {
-      alert(err);
+      console.log(err);
     });
   }
 
   public doStartNdefListener() {
-    const that = this;
     this.nfc.setOnNdefDiscoveredListener((data: NfcNdefData) => {
       if (data.message) {
         let tagMessages = [];
         // data.message is an array of records, so:
         data.message.forEach(record => {
-          console.log(">>> record.tnf: " + record.tnf);
-          console.log(">>> record.type: " + record.type);
-          console.log(">>> record.payload: " + record.payload);
-          console.log(">>> record.payloadAsString: " + record.payloadAsString);
-          console.log(">>> record.payloadAsHexString: " + record.payloadAsHexString);
+          console.log("Read record: " + JSON.stringify(record));
           tagMessages.push(record.payloadAsString);
         });
-        that.set("lastNdefDiscovered", "Read: " + tagMessages.join(", "));
-        console.log("Read: " + tagMessages.join(", "));
-        alert({
-          title: "Ndef tag contents read:",
-          message: " - " + tagMessages.join("\n - "),
-          okButtonText: "OK :)"
-        });
+        this.set("lastNdefDiscovered", "Read: " + tagMessages.join(", "));
       }
-    }, {stopAfterFirstRead: true}).then(() => {
-      console.log("OnNdefDiscoveredListener set");
-    }, (err) => {
-      alert(err);
-    });
+    }, {
+      stopAfterFirstRead: true,
+      scanHint: "Scan a tag, baby!"
+    })
+        .then(() => this.set("lastNdefDiscovered", "Listening..."))
+        .catch(err => alert(err));
   }
 
   public doStopNdefListener() {
     this.nfc.setOnNdefDiscoveredListener(null).then(() => {
-      console.log("OnNdefDiscoveredListener nulled");
+      this.set("lastNdefDiscovered", "Stopped listening.");
     }, (err) => {
       alert(err);
     });
@@ -95,9 +85,9 @@ export class HelloWorldModel extends observable.Observable {
         }
       ]
     }).then(() => {
-      console.log("Wrote text 'Hello!'");
+      this.set("lastNdefDiscovered", "Wrote text 'Hello!'");
     }, (err) => {
-      alert(err);
+      console.log(err);
     });
   }
 
@@ -110,17 +100,17 @@ export class HelloWorldModel extends observable.Observable {
         }
       ]
     }).then(() => {
-      console.log("Wrote uri 'https://www.telerik.com");
+      this.set("lastNdefDiscovered", "Wrote uri 'https://www.telerik.com");
     }, (err) => {
-      alert(err);
+      console.log(err);
     });
   }
 
   public doEraseTag() {
     this.nfc.eraseTag().then(() => {
-      console.log("Tag erased");
+      this.set("lastNdefDiscovered", "Tag erased");
     }, (err) => {
-      alert(err);
+      console.log(err);
     });
   }
 }

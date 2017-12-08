@@ -1,6 +1,6 @@
 {
   "name": "nativescript-nfc",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "NFC plugin for your NativeScript app",
   "main": "nfc",
   "typings": "index.d.ts",
@@ -50,9 +50,10 @@
   "homepage": "https://github.com/EddyVerbruggen/nativescript-nfc",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "tns-core-modules": "^3.1.0",
-    "tns-platform-declarations": "^3.1.0",
-    "typescript": "~2.3.0",
+    "nativescript-dev-typescript": "libs",
+    "tns-core-modules": "~3.3.0",
+    "tns-platform-declarations": "~3.3.0",
+    "typescript": "~2.4.0",
     "rimraf": "^2.5.0",
     "tslint": "^5.0.0"
   },

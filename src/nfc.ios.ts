@@ -3,18 +3,13 @@ import {
   WriteTagOptions
 } from "./nfc.common";
 
-// iOS 11 classes (not part of platform declarations, so defined those here)
-declare const NFCNDEFReaderSession, NFCNDEFReaderSessionDelegate, NFCNDEFMessage: any;
-
 export interface NfcSessionInvalidator {
   invalidateSession(): void;
 }
 
-// TODO https://developer.apple.com/documentation/corenfc?changes=latest_major&language=objc
 export class Nfc implements NfcApi, NfcSessionInvalidator {
-
-  private session; /* NFCNDEFReaderSession */
-  private delegate;
+  private session: NFCNDEFReaderSession;
+  private delegate: NFCNDEFReaderSessionDelegateImpl;
 
   private static _available(): boolean {
     const isIOS11OrUp = NSObject.instancesRespondToSelector("accessibilityAttributedLabel");
@@ -41,20 +36,20 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
     });
   }
 
-  public setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any> {
+  public setOnTagDiscoveredListener(callback: (data: NfcTagData) => void): Promise<any> {
     return new Promise((resolve, reject) => {
       resolve();
     });
   }
 
-  public setOnNdefDiscoveredListener(arg: (data: NfcNdefData) => void, options?: NdefListenerOptions): Promise<any> {
+  public setOnNdefDiscoveredListener(callback: (data: NfcNdefData) => void, options?: NdefListenerOptions): Promise<any> {
     return new Promise((resolve, reject) => {
       if (!Nfc._available()) {
         reject();
         return;
       }
 
-      if (arg === null) {
+      if (callback === null) {
         this.invalidateSession();
         resolve();
         return;
@@ -64,15 +59,24 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
         this.delegate = NFCNDEFReaderSessionDelegateImpl.createWithOwnerResultCallbackAndOptions(
             new WeakRef(this),
             data => {
-              if (!arg) {
+              if (!callback) {
                 console.log("Ndef discovered, but no listener was set via setOnNdefDiscoveredListener. Ndef: " + JSON.stringify(data));
               } else {
-                arg(data);
+                // execute on the main thread with this trick, so UI updates are not broken
+                Promise.resolve().then(() => callback(data));
               }
             },
             options);
 
-        this.session = NFCNDEFReaderSession.alloc().initWithDelegateQueueInvalidateAfterFirstRead(this.delegate, null, options.stopAfterFirstRead);
+        this.session = NFCNDEFReaderSession.alloc().initWithDelegateQueueInvalidateAfterFirstRead(
+            this.delegate,
+            null,
+            options && options.stopAfterFirstRead);
+
+        if (options && options.scanHint) {
+          this.session.alertMessage = options.scanHint;
+        }
+
         this.session.beginSession();
 
         resolve();
@@ -108,7 +112,7 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
   }
 }
 
-class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFReaderSessionDelegate */ {
+class NFCNDEFReaderSessionDelegateImpl extends NSObject implements NFCNDEFReaderSessionDelegate {
   public static ObjCProtocols = [];
 
   private _owner: WeakRef<NfcSessionInvalidator>;
@@ -132,11 +136,13 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
   }
 
   // Called when the reader session finds a new tag
-  readerSessionDidDetectNDEFs(session: any /* NFCNDEFReaderSession */, messages: NSArray<any /*NFCNDEFMessage>*/>): void {
+  readerSessionDidDetectNDEFs(session: NFCNDEFReaderSession, messages: NSArray<NFCNDEFMessage>): void {
     const firstMessage = messages[0];
     if (this.options && this.options.stopAfterFirstRead) {
       setTimeout(() => this._owner.get().invalidateSession());
     }
+
+    // execute on the main thread with this trick
     this.resultCallback(this.ndefToJson(firstMessage));
   }
 
@@ -145,27 +151,25 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
     this._owner.get().invalidateSession();
   }
 
-  private ndefToJson(message: any /*NFCNDEFMessage */): NfcNdefData {
+  private ndefToJson(message: NFCNDEFMessage): NfcNdefData {
     if (message === null) {
       return null;
     }
 
-    let ndefJson: NfcNdefData = {
+    return {
       message: this.messageToJSON(message),
     };
-
-    return ndefJson;
   }
 
-  private messageToJSON(message: any /*NFCNDEFMessage */): Array<NfcNdefRecord> {
+  private messageToJSON(message: NFCNDEFMessage): Array<NfcNdefRecord> {
     const result = [];
-    for (let i = 0, l = message.records.count; i < l; i++) {
+    for (let i = 0; i < message.records.count; i++) {
       result.push(this.recordToJSON(message.records.objectAtIndex(i)));
     }
     return result;
   }
 
-  private recordToJSON(record: any /*NFCNDEFPayload*/): NfcNdefRecord {
+  private recordToJSON(record: NFCNDEFPayload): NfcNdefRecord {
     let payloadAsHexArray = this.nsdataToHexArray(record.payload);
     let payloadAsString = this.nsdataToASCIIString(record.payload);
     let payloadAsStringWithPrefix = payloadAsString;
@@ -182,25 +186,15 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject /* implements NFCNDEFRea
       payloadAsString = prefix + payloadAsString.slice(1);
     }
 
-    let b = interop.bufferFromData(record.payload);
-
     return {
       tnf: record.typeNameFormat, // "typeNameFormat" (1 = well known) - see https://developer.apple.com/documentation/corenfc/nfctypenameformat?changes=latest_major&language=objc
       type: decimalType,
-      id: this.byteArrayToJSArray(record.identifier),
+      id: this.hexToDecArray(this.nsdataToHexArray(record.identifier)),
       payload: this.hexToDecArray(payloadAsHexArray),
       payloadAsHexString: this.nsdataToHexString(record.payload),
       payloadAsStringWithPrefix: payloadAsStringWithPrefix,
       payloadAsString: payloadAsString
     };
-  }
-
-  private byteArrayToJSArray(bytes): Array<number> {
-    let result = [];
-    for (let i = 0; i < bytes.length; i++) {
-      result.push(bytes[i]);
-    }
-    return result;
   }
 
   private hexToDec(hex) {

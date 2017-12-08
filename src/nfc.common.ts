@@ -6,6 +6,11 @@ export interface NdefListenerOptions {
    * Default false.
    */
   stopAfterFirstRead?: boolean;
+  /**
+   * On iOS the scan UI can show a scan hint (fi. "Scan a tag").
+   * By default no hint is shown.
+   */
+  scanHint?: string;
 }
 
 export interface TextRecord {
@@ -75,6 +80,14 @@ export interface NfcNdefData extends NfcTagData {
   canMakeReadOnly?: boolean;
 }
 
+export interface OnTagDiscoveredOptions {
+  /**
+   * On iOS the scan UI can show a message (fi. "Scan a tag").
+   * By default no message is shown.
+   */
+  message?: string;
+}
+
 export interface NfcApi {
   available(): Promise<boolean>;
   enabled(): Promise<boolean>;
@@ -83,9 +96,9 @@ export interface NfcApi {
   /**
    * Set to null to remove the listener.
    */
-  setOnTagDiscoveredListener(arg: (data: NfcTagData) => void): Promise<any>;
+  setOnTagDiscoveredListener(callback: (data: NfcTagData) => void): Promise<any>;
   /**
    * Set to null to remove the listener.
    */
-  setOnNdefDiscoveredListener(arg: (data: NfcNdefData) => void, options?: NdefListenerOptions): Promise<any>;
+  setOnNdefDiscoveredListener(callback: (data: NfcNdefData) => void, options?: NdefListenerOptions): Promise<any>;
 }

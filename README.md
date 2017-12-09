@@ -30,10 +30,10 @@ Note that to be able to use NFC you'll need to have Xcode 9 installed, and (at l
 Also, add this to your `App_Resources/iOS/app.entitlements` (mind the name!) file:
  
 ```xml
-	<key>com.apple.developer.nfc.readersession.formats</key>
-	<array>
-		<string>NDEF</string>
-	</array>
+<key>com.apple.developer.nfc.readersession.formats</key>
+<array>
+	<string>NDEF</string>
+</array>
 ``` 
 
 The [demo app](demo) has this:

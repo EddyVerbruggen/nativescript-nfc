@@ -287,9 +287,11 @@ class Activity extends android.app.Activity {
 
   onNewIntent(intent: android.content.Intent): void {
     super.onNewIntent(intent);
-    application.android.foregroundActivity.setIntent(intent);
-    nfcIntentHandler.savedIntent = intent;
-    nfcIntentHandler.parseMessage();
+    if (application.android.foregroundActivity) {
+      application.android.foregroundActivity.setIntent(intent);
+      nfcIntentHandler.savedIntent = intent;
+      nfcIntentHandler.parseMessage();
+    }
   }
 }
 
@@ -303,46 +305,54 @@ export class Nfc implements NfcApi {
     this.intentFilters = [];
     this.techLists = Array.create("[Ljava.lang.String;", 0);
 
-    let intent = new android.content.Intent(application.android.foregroundActivity, application.android.foregroundActivity.getClass());
-    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP | android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    this.pendingIntent = android.app.PendingIntent.getActivity(application.android.foregroundActivity, 0, intent, 0);
+    const attachNfcAdapter = () => {
+      let intent = new android.content.Intent(application.android.foregroundActivity, application.android.foregroundActivity.getClass());
+      intent.addFlags(android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP | android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
+      this.pendingIntent = android.app.PendingIntent.getActivity(application.android.foregroundActivity, 0, intent, 0);
 
-    // start nfc
-    let nfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(application.android.foregroundActivity);
-    if (nfcAdapter !== null) {
-      if (Nfc.firstInstance) {
-        nfcAdapter.enableForegroundDispatch(application.android.foregroundActivity, this.pendingIntent, this.intentFilters, this.techLists);
-      }
-    }
-
-    // note: once peer2peer is supported, handle possible pending push messages here
-
-    // handle any pending intent (and on resume as well)
-    nfcIntentHandler.parseMessage();
-
-    // only wire these events once
-    if (!Nfc.firstInstance) {
-      return;
-    }
-    Nfc.firstInstance = false;
-
-    application.android.on(application.AndroidApplication.activityPausedEvent, (args: application.AndroidActivityEventData) => {
-      let pausingNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(args.activity);
-      if (pausingNfcAdapter !== null) {
-        try {
-          nfcAdapter.disableForegroundDispatch(args.activity);
-        } catch (e) {
-          console.log("Illegal State Exception stopping NFC. Assuming application is terminating.");
+      // start nfc
+      let nfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(application.android.foregroundActivity);
+      if (nfcAdapter !== null) {
+        if (Nfc.firstInstance) {
+          nfcAdapter.enableForegroundDispatch(application.android.foregroundActivity, this.pendingIntent, this.intentFilters, this.techLists);
         }
       }
-    });
 
-    application.android.on(application.AndroidApplication.activityResumedEvent, (args: application.AndroidActivityEventData) => {
-      let resumingNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(args.activity);
-      if (resumingNfcAdapter !== null && !args.activity.isFinishing()) {
-        resumingNfcAdapter.enableForegroundDispatch(args.activity, this.pendingIntent, this.intentFilters, this.techLists);
+      // note: once peer2peer is supported, handle possible pending push messages here
+
+      // handle any pending intent (and on resume as well)
+      nfcIntentHandler.parseMessage();
+
+      // only wire these events once
+      if (!Nfc.firstInstance) {
+        return;
       }
-    });
+      Nfc.firstInstance = false;
+
+      application.android.on(application.AndroidApplication.activityPausedEvent, (args: application.AndroidActivityEventData) => {
+        let pausingNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(args.activity);
+        if (pausingNfcAdapter !== null) {
+          try {
+            nfcAdapter.disableForegroundDispatch(args.activity);
+          } catch (e) {
+            console.log("Illegal State Exception stopping NFC. Assuming application is terminating.");
+          }
+        }
+      });
+
+      application.android.on(application.AndroidApplication.activityResumedEvent, (args: application.AndroidActivityEventData) => {
+        let resumingNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(args.activity);
+        if (resumingNfcAdapter !== null && !args.activity.isFinishing()) {
+          resumingNfcAdapter.enableForegroundDispatch(args.activity, this.pendingIntent, this.intentFilters, this.techLists);
+        }
+      });
+    };
+
+    if (application.android.foregroundActivity) {
+      attachNfcAdapter();
+    } else {
+      application.on(application.launchEvent, attachNfcAdapter);
+    }
   }
 
   public available(): Promise<boolean> {

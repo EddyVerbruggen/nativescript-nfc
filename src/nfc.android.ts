@@ -18,7 +18,8 @@ class NfcIntentHandler {
   }
 
   parseMessage(): void {
-    let intent = application.android.foregroundActivity.getIntent();
+    const activity = application.android.foregroundActivity || application.android.startActivity;
+    let intent = activity.getIntent();
     if (intent === null || this.savedIntent === null) {
       return;
     }
@@ -53,7 +54,7 @@ class NfcIntentHandler {
       } else {
         onNdefDiscoveredListener(ndefJson);
       }
-      application.android.foregroundActivity.getIntent().setAction("");
+      activity.getIntent().setAction("");
 
     } else if (action === android.nfc.NfcAdapter.ACTION_TECH_DISCOVERED) {
       let techList = tag.getTechList();
@@ -71,7 +72,7 @@ class NfcIntentHandler {
         }
         */
       }
-      application.android.foregroundActivity.getIntent().setAction("");
+      activity.getIntent().setAction("");
 
     } else if (action === android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED) {
       let result: NfcTagData = {
@@ -84,7 +85,7 @@ class NfcIntentHandler {
       } else {
         onTagDiscoveredListener(result);
       }
-      application.android.foregroundActivity.getIntent().setAction("");
+      activity.getIntent().setAction("");
     }
   }
 
@@ -287,8 +288,9 @@ class Activity extends android.app.Activity {
 
   onNewIntent(intent: android.content.Intent): void {
     super.onNewIntent(intent);
-    if (application.android.foregroundActivity) {
-      application.android.foregroundActivity.setIntent(intent);
+    const activity = application.android.foregroundActivity || application.android.startActivity;
+    if (activity) {
+      activity.setIntent(intent);
       nfcIntentHandler.savedIntent = intent;
       nfcIntentHandler.parseMessage();
     }
@@ -305,28 +307,19 @@ export class Nfc implements NfcApi {
     this.intentFilters = [];
     this.techLists = Array.create("[Ljava.lang.String;", 0);
 
-    const attachNfcAdapter = () => {
-      let intent = new android.content.Intent(application.android.foregroundActivity, application.android.foregroundActivity.getClass());
-      intent.addFlags(android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP | android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
-      this.pendingIntent = android.app.PendingIntent.getActivity(application.android.foregroundActivity, 0, intent, 0);
+    const activity = application.android.foregroundActivity || application.android.startActivity;
 
-      // start nfc
-      let nfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(application.android.foregroundActivity);
-      if (nfcAdapter !== null) {
-        if (Nfc.firstInstance) {
-          nfcAdapter.enableForegroundDispatch(application.android.foregroundActivity, this.pendingIntent, this.intentFilters, this.techLists);
-        }
-      }
+    let intent = new android.content.Intent(activity, activity.getClass());
+    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP | android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    this.pendingIntent = android.app.PendingIntent.getActivity(activity, 0, intent, 0);
 
-      // note: once peer2peer is supported, handle possible pending push messages here
+    // start nfc
+    let nfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(activity);
 
-      // handle any pending intent (and on resume as well)
-      nfcIntentHandler.parseMessage();
+    // note: once peer2peer is supported, handle possible pending push messages here
 
-      // only wire these events once
-      if (!Nfc.firstInstance) {
-        return;
-      }
+    // only wire these events once
+    if (Nfc.firstInstance) {
       Nfc.firstInstance = false;
 
       application.android.on(application.AndroidApplication.activityPausedEvent, (args: application.AndroidActivityEventData) => {
@@ -344,14 +337,10 @@ export class Nfc implements NfcApi {
         let resumingNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(args.activity);
         if (resumingNfcAdapter !== null && !args.activity.isFinishing()) {
           resumingNfcAdapter.enableForegroundDispatch(args.activity, this.pendingIntent, this.intentFilters, this.techLists);
+          // handle any pending intent
+          nfcIntentHandler.parseMessage();
         }
       });
-    };
-
-    if (application.android.foregroundActivity) {
-      attachNfcAdapter();
-    } else {
-      application.on(application.launchEvent, attachNfcAdapter);
     }
   }
 

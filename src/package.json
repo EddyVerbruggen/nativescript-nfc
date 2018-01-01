@@ -1,6 +1,6 @@
 {
   "name": "nativescript-nfc",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "NFC plugin for your NativeScript app",
   "main": "nfc",
   "typings": "index.d.ts",
@@ -14,7 +14,7 @@
     "build": "npm i && tsc",
     "demo.ios": "npm run preparedemo && cd ../demo && tns run ios --emulator",
     "demo.ios.device": "npm run preparedemo && cd ../demo && tns platform remove ios && tns run ios",
-    "demo.android": "npm run preparedemo && cd ../demo && tns platform remove android && tns run android --justlaunch",
+    "demo.android": "npm run preparedemo && cd ../demo && tns platform remove android && tns run android",
     "test": "npm run tslint && npm run tslint.demo && cd ../demo && tns build ios && tns test android",
     "test.ios.device": "cd ../demo && tns platform remove ios && tns test ios",
     "test.android": "cd ../demo && tns platform remove android && tns test android --justlaunch",

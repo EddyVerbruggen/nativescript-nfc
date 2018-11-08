@@ -248,7 +248,7 @@ class NfcIntentHandler {
 let nfcIntentHandler = new NfcIntentHandler();
 
 @JavaProxy("com.tns.NativeScriptNfcActivity")
-class Activity extends android.app.Activity {
+class Activity extends com.tns.NativeScriptActivity {
   private _callbacks: frame.AndroidActivityCallbacks;
 
   onCreate(savedInstanceState: android.os.Bundle): void {

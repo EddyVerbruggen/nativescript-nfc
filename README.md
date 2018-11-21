@@ -71,7 +71,7 @@ If you're using Webpack to bundle your app you'll need to add 1 line of configur
 
 - Open `webpack.config.js` (it's in the root of your project).
 - Look for an Array named `appComponents`, which likely contains stuff like `"tns-core-modules/ui/frame"`.
-- Add `resolve(__dirname, "node_modules/nativescript-nfc/nfc-activity.android.ts")`.
+- Add `resolve(__dirname, "node_modules/nativescript-nfc/nfc-activity.android.ts")` [as shown here](https://github.com/EddyVerbruggen/nativescript-nfc/blob/9aef4d6d1a19c79e41714a1a195e9362a0e73498/demo/webpack.config.js#L16).
 
 ## API
 

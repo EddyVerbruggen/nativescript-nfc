@@ -45,14 +45,14 @@ matrix:
       language: node_js
       node_js: "8"
       jdk: oraclejdk8
-      script: cd ../demo && tns build ios --bundle
+      script: cd ../demo && travis_wait travis_retry tns build ios --bundle
     - language: android
       os: linux
       env:
         - Webpack="Android"
       jdk: oraclejdk8
       before_install: nvm install 8.11.4
-      script: cd ../demo && tns build android --bundle
+      script: cd ../demo && travis_wait travis_retry tns build android --bundle
     - stage: "Build"
       env:
         - BuildAndroid="26"
@@ -61,7 +61,7 @@ matrix:
       jdk: oraclejdk8
       before_install: nvm install 8.11.4
       script:
-        - cd ../demo && tns build android
+        - cd ../demo && travis_wait travis_retry tns build android
     - os: osx
       env:
         - BuildiOS="11"
@@ -71,4 +71,4 @@ matrix:
       node_js: "8"
       jdk: oraclejdk8
       script:
-        - cd ../demo && tns build ios
+        - cd ../demo && travis_wait travis_retry tns build ios

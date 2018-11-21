@@ -25,8 +25,6 @@ tns plugin add nativescript-nfc
 ## iOS Setup
 iOS requires you to enable 'NFC Tag Reading' for your App ID [here](https://developer.apple.com/account/ios/identifier/bundle).
 
-Note that to be able to use NFC you'll need to have Xcode 9 installed, and (at least) NativeScript version 3.2.0 (so if `tns --version` is lower, do `npm i -g nativescript`).
-
 Also, add this to your `App_Resources/iOS/app.entitlements` (mind the name!) file:
  
 ```xml
@@ -67,6 +65,13 @@ Want to dive in quickly? Check out [the demo](https://github.com/EddyVerbruggen/
 You can run the demo app from the root of the project by typing `npm run demo.ios.device` or `npm run demo.android`.
 
 > [This is what it looks like in action on iOS](https://twitter.com/eddyverbruggen/status/899617497741185025)!
+
+## Webpack
+If you're using Webpack to bundle your app you'll need to add 1 line of configuration in case you're targeting Android.
+
+- Open `webpack.config.js` (it's in the root of your project).
+- Look for an Array named `appComponents`, which likely contains stuff like `"tns-core-modules/ui/frame"`.
+- Add `resolve(__dirname, "node_modules/nativescript-nfc/nfc-activity.android.ts")`.
 
 ## API
 

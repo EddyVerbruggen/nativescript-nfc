@@ -1,17 +1,21 @@
 import {
-  NfcApi, NfcTagData, NfcNdefData, NfcNdefRecord, WriteTagOptions, NfcUriProtocols, NdefListenerOptions
+  NdefListenerOptions,
+  NfcApi,
+  NfcNdefData,
+  NfcNdefRecord,
+  NfcTagData,
+  NfcUriProtocols,
+  WriteTagOptions
 } from "./nfc.common";
 import * as utils from "tns-core-modules/utils/utils";
-
 import * as application from "tns-core-modules/application";
-import * as frame from "tns-core-modules/ui/frame";
 
 declare let Array: any;
 
 let onTagDiscoveredListener: (data: NfcTagData) => void = null;
 let onNdefDiscoveredListener: (data: NfcNdefData) => void = null;
 
-class NfcIntentHandler {
+export class NfcIntentHandler {
   public savedIntent: android.content.Intent = null;
 
   constructor() {
@@ -245,57 +249,7 @@ class NfcIntentHandler {
   }
 }
 
-let nfcIntentHandler = new NfcIntentHandler();
-
-@JavaProxy("com.tns.NativeScriptNfcActivity")
-class Activity extends android.app.Activity {
-  private _callbacks: frame.AndroidActivityCallbacks;
-
-  onCreate(savedInstanceState: android.os.Bundle): void {
-    if (!this._callbacks) {
-      (<any>frame).setActivityCallbacks(this);
-    }
-    this._callbacks.onCreate(this, savedInstanceState, super.onCreate);
-  }
-
-  protected onSaveInstanceState(outState: android.os.Bundle): void {
-    this._callbacks.onSaveInstanceState(this, outState, super.onSaveInstanceState);
-  }
-
-  protected onStart(): void {
-    this._callbacks.onStart(this, super.onStart);
-  }
-
-  protected onStop(): void {
-    this._callbacks.onStop(this, super.onStop);
-  }
-
-  protected onDestroy(): void {
-    this._callbacks.onDestroy(this, super.onDestroy);
-  }
-
-  public onBackPressed(): void {
-    this._callbacks.onBackPressed(this, super.onBackPressed);
-  }
-
-  public onRequestPermissionsResult(requestCode: number, permissions: Array<String>, grantResults: Array<number>): void {
-    this._callbacks.onRequestPermissionsResult(this, requestCode, permissions, grantResults, undefined /*TODO: Enable if needed*/);
-  }
-
-  protected onActivityResult(requestCode: number, resultCode: number, data: android.content.Intent): void {
-    this._callbacks.onActivityResult(this, requestCode, resultCode, data, super.onActivityResult);
-  }
-
-  onNewIntent(intent: android.content.Intent): void {
-    super.onNewIntent(intent);
-    const activity = application.android.foregroundActivity || application.android.startActivity;
-    if (activity) {
-      activity.setIntent(intent);
-      nfcIntentHandler.savedIntent = intent;
-      nfcIntentHandler.parseMessage();
-    }
-  }
-}
+export const nfcIntentHandler = new NfcIntentHandler();
 
 export class Nfc implements NfcApi {
   private pendingIntent: android.app.PendingIntent;
@@ -341,6 +295,14 @@ export class Nfc implements NfcApi {
           nfcIntentHandler.parseMessage();
         }
       });
+
+      // on startup, we want to make sure the adapter is listening
+      let startupNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(activity);
+      if (startupNfcAdapter !== null) {
+        startupNfcAdapter.enableForegroundDispatch(activity, this.pendingIntent, this.intentFilters, this.techLists);
+        // handle any pending intent
+        nfcIntentHandler.parseMessage();
+      }
     }
   }
 

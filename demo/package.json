@@ -27,6 +27,6 @@
     "nativescript-dev-webpack": "next",
     "nativescript-unit-test-runner": "^0.3.4",
     "tns-platform-declarations": "~5.0.0",
-    "typescript": "~2.7.2"
+    "typescript": "~3.2.2"
   }
 }

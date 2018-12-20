@@ -10,10 +10,11 @@ const {NativeScriptWorkerPlugin} = require("nativescript-worker-loader/NativeScr
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 
 module.exports = env => {
+  // Add your custom Activities, Services and other Android app components here.
   const appComponents = [
     "tns-core-modules/ui/frame",
     "tns-core-modules/ui/frame/activity",
-    resolve(__dirname, "node_modules/nativescript-nfc/nfc-activity.android.ts") // ADD THIS!
+    resolve(__dirname, "node_modules/nativescript-nfc/nfc-activity.android.js") // ADD THIS!
   ];
 
   const platform = env && (env.android && "android" || env.ios && "ios");
@@ -87,8 +88,8 @@ module.exports = env => {
       alias: {
         '~': appFullPath
       },
-      // don't resolve symlinks to symlinked modules
-      symlinks: false
+      // resolve symlinks to symlinked modules
+      symlinks: true
     },
     resolveLoader: {
       // don't resolve symlinks to symlinked loaders
@@ -191,8 +192,11 @@ module.exports = env => {
         {
           test: /\.ts$/,
           use: {
-            loader: "awesome-typescript-loader",
-            options: {configFileName: "tsconfig.tns.json"},
+            loader: "ts-loader",
+            options: {
+              configFile: "tsconfig.tns.json",
+              allowTsInNodeModules: true,
+            },
           }
         },
       ]
@@ -215,9 +219,9 @@ module.exports = env => {
       ]),
       // Copy assets to out dir. Add your own globs as needed.
       new CopyWebpackPlugin([
-        {from: "fonts/**"},
-        {from: "**/*.jpg"},
-        {from: "**/*.png"},
+        {from: {glob: "fonts/**"}},
+        {from: {glob: "**/*.jpg"}},
+        {from: {glob: "**/*.png"}},
       ], {ignore: [`${relative(appPath, appResourcesFullPath)}/**`]}),
       // Generate a bundle starter script and activate it in package.json
       new nsWebpack.GenerateBundleStarterPlugin([

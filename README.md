@@ -58,6 +58,8 @@ Update the `activity` entry in your `App_Resources/Android/AndroidManifest.xml` 
         android:configChanges="keyboardHidden|orientation|screenSize">
 ``` 
 
+So replace `com.tns.NativeScriptActivity` with `com.tns.NativeScriptNfcActivity`.
+
 ## Demo app (those screenshots above)
 Want to dive in quickly? Check out [the demo](https://github.com/EddyVerbruggen/nativescript-nfc/tree/master/demo)!
 

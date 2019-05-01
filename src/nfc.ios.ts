@@ -198,6 +198,10 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject implements NFCNDEFReader
   }
 
   private hexToDec(hex) {
+    if (hex === undefined) {
+      return undefined;
+    }
+
     let result = 0, digitValue;
     hex = hex.toLowerCase();
     for (let i = 0; i < hex.length; i++) {

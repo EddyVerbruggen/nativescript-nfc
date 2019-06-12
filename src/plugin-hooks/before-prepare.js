@@ -1,8 +1,8 @@
 var fs = require('fs-promise');
 var path = require('path');
 
-module.exports = function (logger, platformsData, projectData, hookArgs) {
-	var platform = hookArgs.platform.toLowerCase();
+module.exports = function (logger, projectData, hookArgs) {
+	var platform = (hookArgs && (hookArgs.platform || (hookArgs.prepareData && hookArgs.prepareData.platform)) || '').toLowerCase();
 
 	if (platform == 'ios') {
 		var appResourcesDirectoryPath = projectData.appResourcesDirectoryPath;

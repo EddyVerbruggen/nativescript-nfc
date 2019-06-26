@@ -2,16 +2,16 @@
   "nativescript": {
     "id": "org.nativescript.plugindemo.nfc",
     "tns-ios": {
-      "version": "5.3.1"
+      "version": "6.0.0-2019-06-10-154118-03"
     },
     "tns-android": {
-      "version": "5.3.1"
+      "version": "6.0.0-2019-06-11-172137-01"
     }
   },
   "dependencies": {
     "nativescript-nfc": "file:../src",
     "nativescript-theme-core": "~1.0.4",
-    "tns-core-modules": "~5.3.1"
+    "tns-core-modules": "6.0.0-next-2019-06-20-155941-01"
   },
   "devDependencies": {
     "babel-traverse": "6.26.0",
@@ -23,10 +23,9 @@
     "karma-jasmine": "^1.0.2",
     "karma-nativescript-launcher": "^0.4.0",
     "lazy": "1.0.11",
-    "nativescript-dev-typescript": "next",
     "nativescript-dev-webpack": "next",
     "nativescript-unit-test-runner": "^0.3.4",
-    "tns-platform-declarations": "~5.3.1",
-    "typescript": "~3.2.2"
+    "tns-platform-declarations": "next",
+    "typescript": "3.4.1"
   }
 }

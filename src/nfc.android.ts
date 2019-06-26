@@ -296,6 +296,12 @@ export class Nfc implements NfcApi {
         }
       });
 
+      // fired when a new tag is scanned
+      application.android.on(application.AndroidApplication.activityNewIntentEvent, (args: application.AndroidActivityNewIntentEventData) => {
+        nfcIntentHandler.savedIntent = intent;
+        nfcIntentHandler.parseMessage();
+      });
+
       // on startup, we want to make sure the adapter is listening
       let startupNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(activity);
       if (startupNfcAdapter !== null) {

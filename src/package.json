@@ -1,32 +1,20 @@
 {
   "name": "nativescript-nfc",
-  "version": "3.0.3",
+  "version": "4.0.0",
   "description": "NFC plugin for your NativeScript app",
   "main": "nfc",
   "typings": "index.d.ts",
   "nativescript": {
     "platforms": {
-      "android": "3.2.0",
-      "ios": "3.2.0"
-    },
-    "hooks": [
-      {
-        "type": "before-prepare",
-        "script": "plugin-hooks/before-prepare.js",
-        "inject": true
-      },
-      {
-        "type": "after-prepare",
-        "script": "plugin-hooks/after-prepare.js",
-        "inject": true
-      }
-    ]
+      "android": "5.4.0",
+      "ios": "4.0.0"
+    }
   },
   "scripts": {
     "build": "npm i && tsc --skipLibCheck",
     "demo.ios": "npm run build && cd ../demo && tns run ios",
     "demo.ios.bundle": "npm run build && cd ../demo && tns run ios --bundle",
-    "demo.android": "npm run build && cd ../demo && tns run android --syncAllFiles",
+    "demo.android": "npm run build && cd ../demo && tns run android",
     "demo.android.bundle": "npm run build && cd ../demo && tns run android --bundle",
     "test": "npm run tslint && npm run tslint.demo && cd ../demo && tns build ios && tns test android",
     "test.ios.device": "cd ../demo && tns platform remove ios && tns test ios",
@@ -36,9 +24,7 @@
     "tslint": "tslint --config '../tslint.json' '*.ts' --exclude '**/node_modules/**'",
     "tslint.demo": "tslint --config '../tslint.json' '../demo/app/*.ts' --exclude '**/node_modules/**'",
     "ci.tslint": "npm run tslint && npm run tslint.demo",
-    "prepublishOnly": "npm run build",
-    "postinstall": "node postinstall.js",
-    "preuninstall": "node preuninstall.js"
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -63,16 +49,12 @@
   "homepage": "https://github.com/EddyVerbruggen/nativescript-nfc",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "nativescript-dev-typescript": "~0.9.0",
-    "tns-core-modules": "~5.3.1",
-    "tns-platform-declarations": "~5.3.1",
-    "typescript": "~2.9.0",
+    "nativescript-dev-typescript": "next",
+    "tns-core-modules": "next",
+    "tns-platform-declarations": "next",
+    "typescript": "~3.4.1",
     "rimraf": "^2.5.0",
     "tslint": "^5.0.0"
-  },
-  "dependencies": {
-    "fs-promise": "^2.0.0",
-    "nativescript-hook": "~0.2.1"
   },
   "bootstrapper": "nativescript-plugin-seed"
 }

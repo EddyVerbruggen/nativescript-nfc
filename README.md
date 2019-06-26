@@ -49,6 +49,8 @@ The [demo app](demo) has this:
 ```
 
 ## Android Setup
+> ⚠️ Since plugin version 4.0.0 this section is no longer needed, but you HAVE to run NativeScript 5.4.0 or newer. If you need to support older NativeScript versions, please stick to plugin version < 4.0.0.
+
 Update the `activity` entry in your `App_Resources/Android/AndroidManifest.xml` file:
 
 ```xml
@@ -60,19 +62,19 @@ Update the `activity` entry in your `App_Resources/Android/AndroidManifest.xml` 
 
 So replace `com.tns.NativeScriptActivity` with `com.tns.NativeScriptNfcActivity`.
 
+#### Webpack (again, no longer needed from plugin version 4.0.0)
+If you're using Webpack to bundle your app you'll need to add 1 line of configuration in case you're targeting Android.
+
+- Open `webpack.config.js` (it's in the root of your project).
+- Look for an Array named `appComponents`, which likely contains stuff like `"tns-core-modules/ui/frame"`.
+- Add `resolve(__dirname, "node_modules/nativescript-nfc/nfc-activity.android.js")` [as shown here](https://github.com/EddyVerbruggen/nativescript-nfc/blob/6dfa0ff4f77cab5ab7f494ac3055f728ce51d131/demo/webpack.config.js#L17).
+
 ## Demo app (those screenshots above)
 Want to dive in quickly? Check out [the demo](https://github.com/EddyVerbruggen/nativescript-nfc/tree/master/demo)!
 
 You can run the demo app from the root of the project by typing `npm run demo.ios.device` or `npm run demo.android`.
 
 > [This is what it looks like in action on iOS](https://twitter.com/eddyverbruggen/status/899617497741185025)!
-
-## Webpack
-If you're using Webpack to bundle your app you'll need to add 1 line of configuration in case you're targeting Android.
-
-- Open `webpack.config.js` (it's in the root of your project).
-- Look for an Array named `appComponents`, which likely contains stuff like `"tns-core-modules/ui/frame"`.
-- Add `resolve(__dirname, "node_modules/nativescript-nfc/nfc-activity.android.js")` [as shown here](https://github.com/EddyVerbruggen/nativescript-nfc/blob/6dfa0ff4f77cab5ab7f494ac3055f728ce51d131/demo/webpack.config.js#L17).
 
 ## API
 

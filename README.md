@@ -49,7 +49,7 @@ The [demo app](demo) has this:
 ```
 
 ## Android Setup
-> ⚠️ Since plugin version 4.0.0 this section is no longer needed, but you HAVE to run NativeScript 5.4.0 or newer. If you need to support older NativeScript versions, please stick to plugin version < 4.0.0.
+> ⚠️ Since plugin version 4.0.0 this section is no longer needed, but you'll  HAVE to run NativeScript 5.4.0 or newer. If you're using an older NativeScript, please stick to a plugin version < 4.0.0.
 
 Update the `activity` entry in your `App_Resources/Android/AndroidManifest.xml` file:
 

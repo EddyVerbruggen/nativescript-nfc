@@ -256,6 +256,7 @@ export class Nfc implements NfcApi {
   private intentFilters: any;
   private techLists: any;
   private static firstInstance = true;
+  private started = false;
 
   constructor() {
     this.intentFilters = [];
@@ -290,6 +291,7 @@ export class Nfc implements NfcApi {
       application.android.on(application.AndroidApplication.activityResumedEvent, (args: application.AndroidActivityEventData) => {
         let resumingNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(args.activity);
         if (resumingNfcAdapter !== null && !args.activity.isFinishing()) {
+          this.started = true;
           resumingNfcAdapter.enableForegroundDispatch(args.activity, this.pendingIntent, this.intentFilters, this.techLists);
           // handle any pending intent
           nfcIntentHandler.parseMessage();
@@ -302,13 +304,17 @@ export class Nfc implements NfcApi {
         nfcIntentHandler.parseMessage();
       });
 
-      // on startup, we want to make sure the adapter is listening
-      let startupNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(activity);
-      if (startupNfcAdapter !== null) {
-        startupNfcAdapter.enableForegroundDispatch(activity, this.pendingIntent, this.intentFilters, this.techLists);
-        // handle any pending intent
-        nfcIntentHandler.parseMessage();
-      }
+      // on startup, we want to make sure the adapter is started, but the application must be active first, otherwise it will crash (so simply wrapping it in a timeout)
+      setTimeout(() => {
+        if (!this.started) {
+          let startupNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(activity);
+          if (startupNfcAdapter !== null) {
+            startupNfcAdapter.enableForegroundDispatch(activity, this.pendingIntent, this.intentFilters, this.techLists);
+            // handle any pending intent
+            nfcIntentHandler.parseMessage();
+          }
+        }
+      }, 3000);
     }
   }
 

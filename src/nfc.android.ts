@@ -42,7 +42,6 @@ export class NfcIntentHandler {
 
     // every action should map to a different listener you pass in at 'startListening'
     if (action === android.nfc.NfcAdapter.ACTION_NDEF_DISCOVERED) {
-      console.log(">> tag: " + tag); // issue 40?
       let ndef = android.nfc.tech.Ndef.get(tag);
 
       let ndefJson: NfcNdefData = this.ndefToJSON(ndef);
@@ -354,13 +353,13 @@ export class Nfc implements NfcApi {
 
   public eraseTag(): Promise<any> {
     return new Promise((resolve, reject) => {
-      let intent = application.android.foregroundActivity.getIntent();
-      if (intent === null || nfcIntentHandler.savedIntent === null) {
+      const intent = application.android.foregroundActivity.getIntent() || nfcIntentHandler.savedIntent;
+      if (!intent) {
         reject("Can't erase tag; didn't receive an intent");
         return;
       }
 
-      let tag = nfcIntentHandler.savedIntent.getParcelableExtra(android.nfc.NfcAdapter.EXTRA_TAG) as android.nfc.Tag;
+      let tag = intent.getParcelableExtra(android.nfc.NfcAdapter.EXTRA_TAG) as android.nfc.Tag;
       let records = new Array.create(android.nfc.NdefRecord, 1);
 
       let tnf = android.nfc.NdefRecord.TNF_EMPTY;
@@ -389,13 +388,18 @@ export class Nfc implements NfcApi {
           reject("Nothing passed to write");
           return;
         }
-        let intent = application.android.foregroundActivity.getIntent();
-        if (intent === null || nfcIntentHandler.savedIntent === null) {
-          reject("Can not write to tag; didn't receive an intent");
+
+        const intent = application.android.foregroundActivity.getIntent() || nfcIntentHandler.savedIntent;
+        if (!intent) {
+          reject("Can't write to tag; didn't receive an intent");
           return;
         }
 
-        let tag = nfcIntentHandler.savedIntent.getParcelableExtra(android.nfc.NfcAdapter.EXTRA_TAG) as android.nfc.Tag;
+        let tag = intent.getParcelableExtra(android.nfc.NfcAdapter.EXTRA_TAG) as android.nfc.Tag;
+        if (!tag) {
+          reject("No tag found to write to");
+          return;
+        }
 
         let records = this.jsonToNdefRecords(arg);
 

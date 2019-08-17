@@ -34,10 +34,15 @@ export class NfcIntentHandler {
     }
 
     let tag = intent.getParcelableExtra(android.nfc.NfcAdapter.EXTRA_TAG) as android.nfc.Tag;
+    if (!tag) {
+      return;
+    }
+
     let messages = intent.getParcelableArrayExtra(android.nfc.NfcAdapter.EXTRA_NDEF_MESSAGES);
 
     // every action should map to a different listener you pass in at 'startListening'
     if (action === android.nfc.NfcAdapter.ACTION_NDEF_DISCOVERED) {
+      console.log(">> tag: " + tag); // issue 40?
       let ndef = android.nfc.tech.Ndef.get(tag);
 
       let ndefJson: NfcNdefData = this.ndefToJSON(ndef);

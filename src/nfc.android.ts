@@ -280,7 +280,7 @@ export class Nfc implements NfcApi {
       // The Nfc adapter may not yet be ready, in case the class was instantiated in a very early stage of the app.
       application.android.on(application.AndroidApplication.activityCreatedEvent, (args: application.AndroidActivityEventData) => {
         this.initNfcAdapter();
-      })
+      });
 
       application.android.on(application.AndroidApplication.activityPausedEvent, (args: application.AndroidActivityEventData) => {
         let pausingNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(args.activity);
@@ -411,7 +411,7 @@ export class Nfc implements NfcApi {
 
   private initNfcAdapter() {
     if (!this.created) {
-      var activity = application.android.foregroundActivity || application.android.startActivity;
+      const activity = application.android.foregroundActivity || application.android.startActivity;
       if (activity) {
         this.created = true;
         this.intent = new android.content.Intent(activity, activity.getClass());

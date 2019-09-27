@@ -260,20 +260,16 @@ export class Nfc implements NfcApi {
   private intentFilters: any;
   private techLists: any;
   private static firstInstance = true;
+  private created = false;
   private started = false;
+  private intent: android.content.Intent;
+  private nfcAdapter: android.nfc.NfcAdapter;
 
   constructor() {
     this.intentFilters = [];
     this.techLists = Array.create("[Ljava.lang.String;", 0);
 
-    const activity = application.android.foregroundActivity || application.android.startActivity;
-
-    let intent = new android.content.Intent(activity, activity.getClass());
-    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP | android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    this.pendingIntent = android.app.PendingIntent.getActivity(activity, 0, intent, 0);
-
-    // start nfc
-    let nfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(activity);
+    this.initNfcAdapter();
 
     // note: once peer2peer is supported, handle possible pending push messages here
 
@@ -281,11 +277,16 @@ export class Nfc implements NfcApi {
     if (Nfc.firstInstance) {
       Nfc.firstInstance = false;
 
+      // The Nfc adapter may not yet be ready, in case the class was instantiated in a very early stage of the app.
+      application.android.on(application.AndroidApplication.activityCreatedEvent, (args: application.AndroidActivityEventData) => {
+        this.initNfcAdapter();
+      });
+
       application.android.on(application.AndroidApplication.activityPausedEvent, (args: application.AndroidActivityEventData) => {
         let pausingNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(args.activity);
         if (pausingNfcAdapter !== null) {
           try {
-            nfcAdapter.disableForegroundDispatch(args.activity);
+            this.nfcAdapter.disableForegroundDispatch(args.activity);
           } catch (e) {
             console.log("Illegal State Exception stopping NFC. Assuming application is terminating.");
           }
@@ -304,21 +305,10 @@ export class Nfc implements NfcApi {
 
       // fired when a new tag is scanned
       application.android.on(application.AndroidApplication.activityNewIntentEvent, (args: application.AndroidActivityNewIntentEventData) => {
-        nfcIntentHandler.savedIntent = intent;
+        nfcIntentHandler.savedIntent = this.intent;
         nfcIntentHandler.parseMessage();
       });
 
-      // on startup, we want to make sure the adapter is started, but the application must be active first, otherwise it will crash (so simply wrapping it in a timeout)
-      setTimeout(() => {
-        if (!this.started) {
-          let startupNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(activity);
-          if (startupNfcAdapter !== null) {
-            startupNfcAdapter.enableForegroundDispatch(activity, this.pendingIntent, this.intentFilters, this.techLists);
-            // handle any pending intent
-            nfcIntentHandler.parseMessage();
-          }
-        }
-      }, 3000);
     }
   }
 
@@ -417,6 +407,29 @@ export class Nfc implements NfcApi {
         reject(ex);
       }
     });
+  }
+
+  private initNfcAdapter() {
+    if (!this.created) {
+      const activity = application.android.foregroundActivity || application.android.startActivity;
+      if (activity) {
+        this.created = true;
+        this.intent = new android.content.Intent(activity, activity.getClass());
+        this.intent.addFlags(android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP | android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        this.pendingIntent = android.app.PendingIntent.getActivity(activity, 0, this.intent, 0);
+
+        // The adapter must be started with the foreground activity.
+        // This allows to start it as soon as possible but only once.
+        const foregroundActivity = application.android.foregroundActivity;
+        this.nfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(foregroundActivity);
+        if (!this.started && this.nfcAdapter !== null && foregroundActivity !== null) {
+          this.started = true;
+          this.nfcAdapter.enableForegroundDispatch(foregroundActivity, this.pendingIntent, this.intentFilters, this.techLists);
+          // handle any pending intent
+          nfcIntentHandler.parseMessage();
+        }
+      }
+    }
   }
 
   private writeNdefMessage(message: android.nfc.NdefMessage, tag: android.nfc.Tag): string {

@@ -102,3 +102,30 @@ export interface NfcApi {
    */
   setOnNdefDiscoveredListener(callback: (data: NfcNdefData) => void, options?: NdefListenerOptions): Promise<any>;
 }
+
+// this was done to generate a nice API for our users
+export class Nfc implements NfcApi {
+  available(): Promise<boolean> {
+    return undefined;
+  }
+
+  enabled(): Promise<boolean> {
+    return undefined;
+  }
+
+  eraseTag(): Promise<any> {
+    return undefined;
+  }
+
+  setOnNdefDiscoveredListener(callback: (data: NfcNdefData) => void, options?: NdefListenerOptions): Promise<any> {
+    return undefined;
+  }
+
+  setOnTagDiscoveredListener(callback: (data: NfcTagData) => void): Promise<any> {
+    return undefined;
+  }
+
+  writeTag(arg: WriteTagOptions): Promise<any> {
+    return undefined;
+  }
+}

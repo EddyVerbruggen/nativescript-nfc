@@ -1,7 +1,4 @@
-import {
-  NdefListenerOptions, NfcApi, NfcNdefData, NfcNdefRecord, NfcTagData, NfcUriProtocols,
-  WriteTagOptions
-} from "./nfc.common";
+import { NdefListenerOptions, NfcApi, NfcNdefData, NfcNdefRecord, NfcTagData, NfcUriProtocols, WriteTagOptions } from "./nfc.common";
 
 export interface NfcSessionInvalidator {
   invalidateSession(): void;

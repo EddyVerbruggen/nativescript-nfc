@@ -49,10 +49,10 @@
   "homepage": "https://github.com/EddyVerbruggen/nativescript-nfc",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "nativescript-dev-typescript": "next",
-    "tns-core-modules": "next",
-    "tns-platform-declarations": "next",
-    "typescript": "~3.4.1",
+    "nativescript-dev-typescript": "~0.10.0",
+    "tns-core-modules": "~6.2.0",
+    "tns-platform-declarations": "~6.2.0",
+    "typescript": "~3.4.5",
     "rimraf": "^2.5.0",
     "tslint": "^5.0.0"
   },

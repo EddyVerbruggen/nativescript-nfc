@@ -19,7 +19,7 @@
     "@angular/router": "~8.2.0",
     "@nativescript/theme": "~2.3.0",
     "nativescript-angular": "^8.21.0",
-    "nativescript-nfc": "^4.1.0",
+    "nativescript-nfc": "file:../src",
     "reflect-metadata": "~0.1.12",
     "rxjs": "^6.5.0",
     "tns-core-modules": "~6.5.5",

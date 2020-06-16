@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noEmitHelpers": true,
+    "noEmitOnError": true,
+    "skipLibCheck": true,
+    "lib": [
+      "es2017",
+      "dom",
+      "es6"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": [
+        "app/*"
+      ]
+    }
+  },
+  "includes": [
+    "references.d.ts"
+  ],
+  "include": [
+    "../src/*.ts"
+  ],
+  "files": [
+    "./src/main.ts"
+  ],
+  "exclude": [
+    "../src/node_modules",
+    "node_modules",
+    "platforms",
+    "e2e"
+  ]
+}

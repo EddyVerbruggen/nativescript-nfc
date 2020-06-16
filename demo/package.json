@@ -1,6 +1,6 @@
 {
   "nativescript": {
-    "id": "org.nativescript.plugindemo.nfc",
+    "id": "tech.demetrius.dev.nfc",
     "tns-ios": {
       "version": "6.2.0"
     },

@@ -1,0 +1,11 @@
+<ActionBar title="My App">
+</ActionBar>
+
+<StackLayout>
+    <Button text="NFC available?" (tap)="doCheckAvailable()" class="button button-a" width="40%"></Button>
+    <Button text="NFC enabled?" (tap)="doCheckEnabled()" class="button button-a" width="40%"></Button>
+    <Button text="set ndef listener" (tap)="doStartNdefListener()" class="button" width="40%"></Button>
+    <Button text="clear ndef listener" (tap)="doStopNdefListener()" class="button" width="40%"></Button>
+
+    <Label [text]="lastNdefDiscovered" class="message message-ndef" textWrap="true"></Label>
+</StackLayout>

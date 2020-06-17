@@ -9,7 +9,7 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
   private delegate: NFCNDEFReaderSessionDelegateImpl;
 
   private static _available(): boolean {
-    const isIOS11OrUp = NSObject.instancesRespondToSelector("accessibilityAttributedLabel");
+    const isIOS11OrUp = NSObject.instancesRespondToSelector("accessibilityAttributedLabel"); 
     if (isIOS11OrUp) {
       try {
         return NFCNDEFReaderSession.readingAvailable;
@@ -132,10 +132,6 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject implements NFCNDEFReader
     return delegate;
   }
 
-  readerSessionDidBecomeActive(session: NFCNDEFReaderSession): void {
-    // ignore, but by implementing this function we suppress a log about it not being implemented ;)
-  }
-
   // Called when the reader session finds a new tag
   readerSessionDidDetectNDEFs(session: NFCNDEFReaderSession, messages: NSArray<NFCNDEFMessage>): void {
     const firstMessage = messages[0];
@@ -145,29 +141,6 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject implements NFCNDEFReader
 
     // execute on the main thread with this trick
     this.resultCallback(this.ndefToJson(firstMessage));
-  }
-
-  readerSessionDidDetectTags(session: NFCNDEFReaderSession, tags: NSArray<NFCNDEFTag> | NFCNDEFTag[]): void {
-    /*
-    // TODO prolly remember the tags for when the app wants to write to it (also: check Android impl for possibly sth similar)
-    const nfcNdefTag = tags[0];
-    session.connectToTagCompletionHandler(nfcNdefTag, (error: NSError) => {
-      console.log(">> connected to tag, error: " + error);
-    });
-
-    // TODO either Text or URI
-    const payload: NFCNDEFPayload = NFCNDEFPayload.wellKnownTypeTextPayloadWithStringLocale("EddyIOS", NSLocale.currentLocale);
-    console.log(">> payload: " + payload);
-
-    const ndefMessage: NFCNDEFMessage = NFCNDEFMessage.alloc().initWithNDEFRecords([payload]);
-    console.log(">> ndefMessage: " + ndefMessage);
-
-    if (nfcNdefTag.writeNDEFCompletionHandler) {
-      nfcNdefTag.writeNDEFCompletionHandler(ndefMessage, (error: NSError) => {
-        console.log(">> writeNDEFCompletionHandler, error: " + error);
-      });
-    }
-   */
   }
 
   // Called when the reader session becomes invalid due to the specified error

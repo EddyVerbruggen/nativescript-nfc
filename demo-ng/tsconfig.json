@@ -8,30 +8,27 @@
     "noEmitOnError": true,
     "skipLibCheck": true,
     "lib": [
-      "es2017",
+      "es6",
       "dom",
-      "es6"
+      "es2015.iterable"
     ],
     "baseUrl": ".",
     "paths": {
       "~/*": [
-        "app/*"
+        "src/*"
+      ],
+      "*": [
+        "./node_modules/*"
       ]
     }
   },
-  "includes": [
-    "references.d.ts"
-  ],
-  "include": [
-    "../src/*.ts"
-  ],
-  "files": [
-    "./src/main.ts"
-  ],
   "exclude": [
-    "../src/node_modules",
     "node_modules",
     "platforms",
-    "e2e"
+    "../src/node_modules"
+  ],
+  "include": [
+    "../src",
+    "**/*"
   ]
 }

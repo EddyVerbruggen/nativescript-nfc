@@ -9,7 +9,7 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
   private delegate: NFCNDEFReaderSessionDelegateImpl;
 
   private static _available(): boolean {
-    const isIOS11OrUp = NSObject.instancesRespondToSelector("accessibilityAttributedLabel"); 
+    const isIOS11OrUp = NSObject.instancesRespondToSelector("accessibilityAttributedLabel");
     if (isIOS11OrUp) {
       try {
         return NFCNDEFReaderSession.readingAvailable;
@@ -33,9 +33,50 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
     });
   }
 
+  private tagSession: NFCTagReaderSession;
+  private tagDelegate: NFCTagReaderSessionDelegateImpl;
+
   public setOnTagDiscoveredListener(callback: (data: NfcTagData) => void): Promise<any> {
+
+    console.log("nativescript-nfc ios: setOnTagDiscoveredListener");
+
     return new Promise((resolve, reject) => {
-      resolve();
+      if (!Nfc._available()) {
+        reject();
+        return;
+      }
+
+      if (callback === null) {
+        console.log("callback = null");
+
+        this.invalidateSession();
+        resolve();
+        return;
+      }
+
+      try {
+
+        this.tagDelegate = NFCTagReaderSessionDelegateImpl.createWithOwnerResultCallbackAndOptions(
+          new WeakRef(this),
+          data => {
+            if (!callback) {
+              console.log("Tag discovered, but no listener was set via setOnTagDiscoveredListener. Ndef: " + JSON.stringify(data));
+            } else {
+              // execute on the main thread with this trick, so UI updates are not broken
+              Promise.resolve().then(() => callback(data));
+            }
+          },
+          {});
+
+        this.tagSession = NFCTagReaderSession.alloc().initWithPollingOptionDelegateQueue(NFCPollingOption.ISO14443, this.tagDelegate, null);
+
+        this.tagSession.beginSession();
+
+        resolve();
+      } catch (e) {
+        console.log(JSON.stringify(e));
+        reject(e);
+      }
     });
   }
 
@@ -54,21 +95,21 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
 
       try {
         this.delegate = NFCNDEFReaderSessionDelegateImpl.createWithOwnerResultCallbackAndOptions(
-            new WeakRef(this),
-            data => {
-              if (!callback) {
-                console.log("Ndef discovered, but no listener was set via setOnNdefDiscoveredListener. Ndef: " + JSON.stringify(data));
-              } else {
-                // execute on the main thread with this trick, so UI updates are not broken
-                Promise.resolve().then(() => callback(data));
-              }
-            },
-            options);
+          new WeakRef(this),
+          data => {
+            if (!callback) {
+              console.log("Ndef discovered, but no listener was set via setOnNdefDiscoveredListener. Ndef: " + JSON.stringify(data));
+            } else {
+              // execute on the main thread with this trick, so UI updates are not broken
+              Promise.resolve().then(() => callback(data));
+            }
+          },
+          options);
 
         this.session = NFCNDEFReaderSession.alloc().initWithDelegateQueueInvalidateAfterFirstRead(
-            this.delegate,
-            null,
-            options && options.stopAfterFirstRead);
+          this.delegate,
+          null,
+          options && options.stopAfterFirstRead);
 
         if (options && options.scanHint) {
           this.session.alertMessage = options.scanHint;
@@ -106,6 +147,112 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
     return new Promise((resolve, reject) => {
       reject("Not available on iOS");
     });
+  }
+}
+
+class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSessionDelegate {
+
+  public static ObjCProtocols = [];
+
+  private _owner: WeakRef<NfcSessionInvalidator>;
+  private resultCallback: (message: any) => void;
+  private options?: NdefListenerOptions;
+
+  public static new(): NFCTagReaderSessionDelegateImpl {
+    try {
+      NFCTagReaderSessionDelegateImpl.ObjCProtocols.push(NFCTagReaderSessionDelegate);
+    } catch (ignore) {
+    }
+    return <NFCTagReaderSessionDelegateImpl>super.new();
+  }
+
+  public static createWithOwnerResultCallbackAndOptions(owner: WeakRef<NfcSessionInvalidator>, callback: (message: any) => void, options?: NdefListenerOptions): NFCTagReaderSessionDelegateImpl {
+    let delegate = <NFCTagReaderSessionDelegateImpl>NFCTagReaderSessionDelegateImpl.new();
+    delegate._owner = owner;
+    delegate.options = options;
+    delegate.resultCallback = callback;
+    return delegate;
+  }
+
+  tagReaderSessionDidBecomeActive?(session: NFCTagReaderSession): void {
+    console.log("tagReaderSessionDidBecomeActive");
+  }
+  tagReaderSessionDidDetectTags?(session: NFCTagReaderSession, tags: NSArray<NFCTag> | NFCTag[]): void {
+    console.log("tagReaderSessionDidDetectTags");
+
+    var tag = tags[0];
+    let uid = this.getTagUID(tag);
+
+    console.log(uid);
+  }
+
+  tagReaderSessionDidInvalidateWithError(session: NFCTagReaderSession, error: NSError): void {
+    console.log("tagReaderSessionDidInvalidateWithError");
+    this._owner.get().invalidateSession();
+  }
+
+  getTagUID(tag: NFCTag): any {
+    let uid = NSData.new();
+
+    /* ISSUE: tag.type is undefined */
+    if (tag.type == undefined){
+      tag.type = NFCTagType.MiFare; // TESTING purposes
+    }
+
+    switch(tag.type){
+      case NFCTagType.MiFare:
+          /* ERROR: JS ERROR Error: NativeScript encountered a fatal error: TypeError: tag.asNFCMiFareTag is not a function. (In 'tag.asNFCMiFareTag()', 'tag.asNFCMiFareTag' is undefined) */
+          // var mifareTag = tag.asNFCMiFareTag();
+
+          var mifareTag:NFCMiFareTag = NFCTag.prototype.asNFCMiFareTag.apply(tag);
+
+          uid = mifareTag.identifier; // ERROR on line 224: NativeScript encountered a fatal error: TypeError: Argument must be an NSData instance.
+        break;
+      case NFCTagType.FeliCa:
+          uid = null;
+        break;
+      case NFCTagType.ISO15693:
+          uid = tag.asNFCISO15693Tag().identifier;
+        break;
+      case NFCTagType.ISO7816Compatible:
+          uid = tag.asNFCISO7816Tag().identifier;
+        break;
+      default:
+        break;
+    }
+    
+    return this.hexToDecArray(this.nsdataToHexArray(uid));
+  }
+
+  private nsdataToHexString(data): string {
+    let b = interop.bufferFromData(data);
+    return this.buf2hexString(b);
+  }
+
+  private nsdataToHexArray(data): Array<string> {
+    let b = interop.bufferFromData(data);
+    return this.buf2hexArray(b);
+  }
+  private hexToDecArray(hexArray): any {
+    let resultArray = [];
+    for (let i = 0; i < hexArray.length; i++) {
+      let result = 0, digitValue;
+      const hex = hexArray[i].toLowerCase();
+      for (let j = 0; j < hex.length; j++) {
+        digitValue = '0123456789abcdefgh'.indexOf(hex[j]);
+        result = result * 16 + digitValue;
+      }
+      resultArray.push(result);
+    }
+    return JSON.stringify(resultArray);
+  }
+
+  private buf2hexArray(buffer) { // buffer is an ArrayBuffer
+    return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2));
+  }
+
+  private buf2hexString(buffer) { // buffer is an ArrayBuffer
+    return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
   }
 }
 

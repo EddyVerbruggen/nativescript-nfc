@@ -15,8 +15,26 @@ export class MainComponent extends observable.Observable implements OnInit {
         super();
         this.nfc = new Nfc();
     }
-    ngOnInit(): void {
-        
+    ngOnInit(): void { }
+
+    public doStartTagListener() {
+        let that = this;
+        this.nfc.setOnTagDiscoveredListener((data: NfcTagData) => {
+            console.log("Tag discovered! " + data.id);
+            that.set("lastTagDiscovered", data.id);
+        }).then(() => {
+            console.log("OnTagDiscovered Listener set");
+        }, (err) => {
+            console.log(err);
+        });
+    }
+
+    public doStopTagListener() {
+        this.nfc.setOnTagDiscoveredListener(null).then(() => {
+            console.log("OnTagDiscovered nulled");
+        }, (err) => {
+            console.log(err);
+        });
     }
 
     public doCheckAvailable() {
@@ -38,7 +56,7 @@ export class MainComponent extends observable.Observable implements OnInit {
     }
 
     public doStartNdefListener() {
-        
+
         this.nfc.setOnNdefDiscoveredListener((data: NfcNdefData) => {
             if (data.message) {
                 let tagMessages = [];

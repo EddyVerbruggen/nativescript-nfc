@@ -1,5 +1,5 @@
 import { NdefListenerOptions, NfcApi, NfcNdefData, NfcNdefRecord, NfcTagData, NfcUriProtocols, WriteTagOptions } from "./nfc.common";
-
+ 
 export interface NfcSessionInvalidator {
   invalidateSession(): void;
 }
@@ -180,10 +180,13 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
   tagReaderSessionDidDetectTags?(session: NFCTagReaderSession, tags: NSArray<NFCTag> | NFCTag[]): void {
     console.log("tagReaderSessionDidDetectTags");
 
-    var tag = tags[0];
-    let uid = this.getTagUID(tag);
+    var tag = NFCTagLocal.new().copyWithZone(new interop.Pointer(tags[0]));
 
-    console.log(uid);
+    console.log(tag.type);
+
+    /*let uid = this.getTagUID(tag);
+
+    console.log(uid);*/
   }
 
   tagReaderSessionDidInvalidateWithError(session: NFCTagReaderSession, error: NSError): void {
@@ -401,5 +404,41 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject implements NFCNDEFReader
       resultArray.push(result);
     }
     return JSON.stringify(resultArray);
+  }
+}
+
+class NFCTagLocal extends NSObject implements NFCTag {
+  available: boolean;
+  session: NFCReaderSessionProtocol;
+  type: NFCTagType;
+
+  static new(): NFCTagLocal {
+    return <NFCTagLocal>super.new();
+  }
+
+  asNFCFeliCaTag(): NFCFeliCaTag {
+    return NFCTag.prototype.asNFCFeliCaTag.call(this);
+  }
+  asNFCISO15693Tag(): NFCISO15693Tag {
+    throw new Error("Method not implemented.");
+  }
+  asNFCISO7816Tag(): NFCISO7816Tag {
+    throw new Error("Method not implemented.");
+  }
+  asNFCMiFareTag(): NFCMiFareTag {
+    return NFCTag.prototype.asNFCMiFareTag.call(this);
+  }
+  copyWithZone(zone: interop.Pointer | interop.Reference<any>) {
+    var newTag:NFCTag = this.superclass.copyWithZone(zone);
+    newTag.type = this.type;
+    newTag.available = this.available;
+    newTag.session = this.session;
+    return newTag;
+  }
+  encodeWithCoder(coder: NSCoder): void {
+    throw new Error("Method not implemented.");
+  }
+  initWithCoder?(coder: NSCoder): NSCoding {
+    throw new Error("Method not implemented.");
   }
 }

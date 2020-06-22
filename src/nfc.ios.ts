@@ -1,5 +1,5 @@
 import { NdefListenerOptions, NfcApi, NfcNdefData, NfcNdefRecord, NfcTagData, NfcUriProtocols, WriteTagOptions } from "./nfc.common";
- 
+
 export interface NfcSessionInvalidator {
   invalidateSession(): void;
 }
@@ -68,7 +68,7 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
           },
           {});
 
-        this.tagSession = NFCTagReaderSession.alloc().initWithPollingOptionDelegateQueue(NFCPollingOption.ISO14443, this.tagDelegate, null);
+        this.tagSession = NFCTagReaderSession.alloc().initWithPollingOptionDelegateQueue(NFCPollingOption.ISO14443 | NFCPollingOption.ISO15693, this.tagDelegate, null);
 
         this.tagSession.beginSession();
 
@@ -139,7 +139,14 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
 
   public writeTag(arg: WriteTagOptions): Promise<any> {
     return new Promise((resolve, reject) => {
-      reject("Not available on iOS");
+      try {
+
+
+
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 
@@ -180,13 +187,61 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
   tagReaderSessionDidDetectTags?(session: NFCTagReaderSession, tags: NSArray<NFCTag> | NFCTag[]): void {
     console.log("tagReaderSessionDidDetectTags");
 
-    var tag = NFCTagLocal.new().copyWithZone(new interop.Pointer(tags[0]));
+    const tag = tags[0];
 
-    console.log(tag.type);
+    let writeTag = false;
+    if (writeTag) {
+      session.connectToTagCompletionHandler(tag, (error) => {
+        if (error) {
+          console.log(error); session.invalidateSession();
+          return;
+        }
 
-    /*let uid = this.getTagUID(tag);
+        const ndefTag: NFCNDEFTag = new interop.Reference<NFCNDEFTag>(interop.types.id, tag).value;
 
-    console.log(uid);*/
+        NFCNDEFTag.prototype.queryNDEFStatusWithCompletionHandler.call(ndefTag, (status: NFCNDEFStatus, number: number, error: NSError) => {
+          if (error) {
+            console.log(error);
+            return;
+          }
+
+          this.writeNDEFTag(session, status, ndefTag);
+        });
+      });
+    }
+
+    /* SIMULATION */
+    tag.type = NFCTagType.MiFare; // ISSUE: cannot get type value from tag
+    
+    let uid = this.getTagUID(tag);
+
+    console.log(uid); // ISSUE: cannot display uid in console, it's empty
+  }
+
+  public writeNDEFTag(session: NFCReaderSession, status: NFCNDEFStatus, tag: NFCNDEFTag) {
+
+    console.log(status);
+
+    if (status === NFCNDEFStatus.ReadWrite) {
+
+      let message: NFCNDEFMessage = NFCNDEFMessage.new();
+      let record = NFCNDEFPayload.new();
+
+      const content: NSString = NSString.stringWithString("test");
+      const nsData: NSData = content.dataUsingEncoding(NSUTF8StringEncoding);
+
+      record.payload = nsData;
+      message.records = NSArray.arrayWithArray([record]);
+
+      NFCNDEFTag.prototype.writeNDEFCompletionHandler.call(tag, message, (error: NSError) => {
+        if (error) {
+          console.log(error);
+        } else {
+          session.alertMessage = "Wrote data";
+          session.invalidateSession();
+        }
+      });
+    }
   }
 
   tagReaderSessionDidInvalidateWithError(session: NFCTagReaderSession, error: NSError): void {
@@ -195,36 +250,26 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
   }
 
   getTagUID(tag: NFCTag): any {
-    let uid = NSData.new();
+    let uid:NSData = null;
 
-    /* ISSUE: tag.type is undefined */
-    if (tag.type == undefined){
-      tag.type = NFCTagType.MiFare; // TESTING purposes
-    }
-
-    switch(tag.type){
+    switch (tag.type) {
       case NFCTagType.MiFare:
-          /* ERROR: JS ERROR Error: NativeScript encountered a fatal error: TypeError: tag.asNFCMiFareTag is not a function. (In 'tag.asNFCMiFareTag()', 'tag.asNFCMiFareTag' is undefined) */
-          // var mifareTag = tag.asNFCMiFareTag();
-
-          var mifareTag:NFCMiFareTag = NFCTag.prototype.asNFCMiFareTag.apply(tag);
-
-          uid = mifareTag.identifier; // ERROR on line 224: NativeScript encountered a fatal error: TypeError: Argument must be an NSData instance.
-        break;
-      case NFCTagType.FeliCa:
-          uid = null;
+        const mifareTag: NFCMiFareTag = NFCTag.prototype.asNFCMiFareTag.apply(tag);
+        uid = NSData.alloc().initWithData(mifareTag.identifier);
         break;
       case NFCTagType.ISO15693:
-          uid = tag.asNFCISO15693Tag().identifier;
+        const iso15693Tag: NFCISO15693Tag = NFCTag.prototype.asNFCISO15693Tag.apply(tag);
+        uid = NSData.alloc().initWithData(iso15693Tag.identifier);
         break;
       case NFCTagType.ISO7816Compatible:
-          uid = tag.asNFCISO7816Tag().identifier;
+        const iso7816Tag: NFCISO7816Tag = NFCTag.prototype.asNFCISO7816Tag.apply(tag);
+        uid = NSData.alloc().initWithData(iso7816Tag.identifier);
         break;
+      case NFCTagType.FeliCa:
       default:
         break;
     }
-    
-    return this.hexToDecArray(this.nsdataToHexArray(uid));
+    return this.nsdataToHexArray(uid);
   }
 
   private nsdataToHexString(data): string {
@@ -404,41 +449,5 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject implements NFCNDEFReader
       resultArray.push(result);
     }
     return JSON.stringify(resultArray);
-  }
-}
-
-class NFCTagLocal extends NSObject implements NFCTag {
-  available: boolean;
-  session: NFCReaderSessionProtocol;
-  type: NFCTagType;
-
-  static new(): NFCTagLocal {
-    return <NFCTagLocal>super.new();
-  }
-
-  asNFCFeliCaTag(): NFCFeliCaTag {
-    return NFCTag.prototype.asNFCFeliCaTag.call(this);
-  }
-  asNFCISO15693Tag(): NFCISO15693Tag {
-    throw new Error("Method not implemented.");
-  }
-  asNFCISO7816Tag(): NFCISO7816Tag {
-    throw new Error("Method not implemented.");
-  }
-  asNFCMiFareTag(): NFCMiFareTag {
-    return NFCTag.prototype.asNFCMiFareTag.call(this);
-  }
-  copyWithZone(zone: interop.Pointer | interop.Reference<any>) {
-    var newTag:NFCTag = this.superclass.copyWithZone(zone);
-    newTag.type = this.type;
-    newTag.available = this.available;
-    newTag.session = this.session;
-    return newTag;
-  }
-  encodeWithCoder(coder: NSCoder): void {
-    throw new Error("Method not implemented.");
-  }
-  initWithCoder?(coder: NSCoder): NSCoding {
-    throw new Error("Method not implemented.");
   }
 }

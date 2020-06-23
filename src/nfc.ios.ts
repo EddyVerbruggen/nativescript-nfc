@@ -187,7 +187,9 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
   tagReaderSessionDidDetectTags?(session: NFCTagReaderSession, tags: NSArray<NFCTag> | NFCTag[]): void {
     console.log("tagReaderSessionDidDetectTags");
 
-    const tag = tags[0];
+    var tag = tags[0];
+
+    let uid = this.getTagUID(tag);
 
     let writeTag = false;
     if (writeTag) {
@@ -204,18 +206,10 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
             console.log(error);
             return;
           }
-
           this.writeNDEFTag(session, status, ndefTag);
         });
       });
     }
-
-    /* SIMULATION */
-    tag.type = NFCTagType.MiFare; // ISSUE: cannot get type value from tag
-    
-    let uid = this.getTagUID(tag);
-
-    console.log(uid); // ISSUE: cannot display uid in console, it's empty
   }
 
   public writeNDEFTag(session: NFCReaderSession, status: NFCNDEFStatus, tag: NFCNDEFTag) {
@@ -251,24 +245,40 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
 
   getTagUID(tag: NFCTag): any {
     let uid:NSData = null;
+    let type = "Unknown";
 
-    switch (tag.type) {
-      case NFCTagType.MiFare:
-        const mifareTag: NFCMiFareTag = NFCTag.prototype.asNFCMiFareTag.apply(tag);
-        uid = NSData.alloc().initWithData(mifareTag.identifier);
-        break;
-      case NFCTagType.ISO15693:
-        const iso15693Tag: NFCISO15693Tag = NFCTag.prototype.asNFCISO15693Tag.apply(tag);
-        uid = NSData.alloc().initWithData(iso15693Tag.identifier);
-        break;
-      case NFCTagType.ISO7816Compatible:
-        const iso7816Tag: NFCISO7816Tag = NFCTag.prototype.asNFCISO7816Tag.apply(tag);
-        uid = NSData.alloc().initWithData(iso7816Tag.identifier);
-        break;
-      case NFCTagType.FeliCa:
-      default:
-        break;
+    if (NFCTag.prototype.asNFCMiFareTag.call(tag) === tag) {
+      tag.type = NFCTagType.MiFare;
+      type = "MiFare";
+
+      let mifareTag:NFCMiFareTag = <NFCMiFareTag>NFCTag.prototype.asNFCMiFareTag.call(tag);
+      
+      console.log(mifareTag); // OK: displays <NFCMiFareTag: 0x2809bda70>
+
+      uid = NSData.alloc().initWithData(mifareTag.identifier);
+      
+      console.log(uid); // ISSUE: it displays {length = 0, bytes = 0x}
+      
+      /* 
+      
+        Probably some more processing of uid is needed to convert from big-endian bytes to string:
+        https://stackoverflow.com/questions/46504035/little-endian-byte-order-ios-ble-scan-response
+        https://stackoverflow.com/questions/46518084/nativescript-get-string-from-interop-reference
+
+      */
+    } else if (NFCTag.prototype.asNFCISO15693Tag.apply(tag) === tag) {
+      tag.type = NFCTagType.ISO15693;
+      type = "ISO15693";
+    } else if (NFCTag.prototype.asNFCISO7816Tag.apply(tag) === tag) {
+      tag.type = NFCTagType.ISO7816Compatible;
+      type = "NFCISO7816";
+    } else if (NFCTag.prototype.asNFCFeliCaTag.apply(tag) === tag) {
+      tag.type = NFCTagType.FeliCa;
+      type = "FeilCa";
     }
+
+    console.log("Tag Type: " + type + " ( " + tag.type + " )");
+    
     return this.nsdataToHexArray(uid);
   }
 
@@ -281,6 +291,18 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
     let b = interop.bufferFromData(data);
     return this.buf2hexArray(b);
   }
+  private nsdataToASCIIString(data): string {
+    return this.hex2a(this.nsdataToHexString(data));
+  }
+
+  private hex2a(hexx) {
+    const hex = hexx.toString(); // force conversion
+    let str = '';
+    for (let i = 0; i < hex.length; i += 2)
+      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    return str;
+  }
+
   private hexToDecArray(hexArray): any {
     let resultArray = [];
     for (let i = 0; i < hexArray.length; i++) {

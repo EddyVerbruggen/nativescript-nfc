@@ -244,26 +244,29 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
   }
 
   getTagUID(tag: NFCTag): any {
-    let uid:NSData = null;
+    let uid: NSData = null;
     let type = "Unknown";
 
     if (NFCTag.prototype.asNFCMiFareTag.call(tag) === tag) {
       tag.type = NFCTagType.MiFare;
       type = "MiFare";
 
-      let mifareTag:NFCMiFareTag = <NFCMiFareTag>NFCTag.prototype.asNFCMiFareTag.call(tag);
-      
+      let mifareTag: NFCMiFareTag = <NFCMiFareTag>NFCTag.prototype.asNFCMiFareTag.call(tag);
+
       console.log(mifareTag); // OK: displays <NFCMiFareTag: 0x2809bda70>
 
       uid = NSData.alloc().initWithData(mifareTag.identifier);
-      
+
       console.log(uid); // ISSUE: it displays {length = 0, bytes = 0x}
-      
+
       /* 
       
         Probably some more processing of uid is needed to convert from big-endian bytes to string:
         https://stackoverflow.com/questions/46504035/little-endian-byte-order-ios-ble-scan-response
         https://stackoverflow.com/questions/46518084/nativescript-get-string-from-interop-reference
+
+        let str = NSString.alloc().initWithDataEncoding(mifareTag.identifier, NSUTF16BigEndianStringEncoding);
+        console.log(str);
 
       */
     } else if (NFCTag.prototype.asNFCISO15693Tag.apply(tag) === tag) {
@@ -278,7 +281,7 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
     }
 
     console.log("Tag Type: " + type + " ( " + tag.type + " )");
-    
+
     return this.nsdataToHexArray(uid);
   }
 

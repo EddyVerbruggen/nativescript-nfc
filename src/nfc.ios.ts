@@ -1,4 +1,4 @@
-import { NdefListenerOptions, NfcApi, NfcNdefData, NfcNdefRecord, NfcTagData, NfcUriProtocols, WriteTagOptions } from "./nfc.common";
+import { NdefListenerOptions, NfcApi, NfcNdefData, NfcNdefRecord, NfcTagData, NfcUriProtocols, WriteTagOptions, TextRecord } from "./nfc.common";
 
 export interface NfcSessionInvalidator {
   invalidateSession(): void;
@@ -7,6 +7,7 @@ export interface NfcSessionInvalidator {
 export class Nfc implements NfcApi, NfcSessionInvalidator {
   private session: NFCNDEFReaderSession;
   private delegate: NFCNDEFReaderSessionDelegateImpl;
+  private writeMode: false;
 
   private static _available(): boolean {
     const isIOS11OrUp = NSObject.instancesRespondToSelector("accessibilityAttributedLabel");
@@ -157,6 +158,10 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
   }
 }
 
+/* Common Processing */
+
+
+/* NFCTagReaderSessionDelegate */
 class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSessionDelegate {
 
   public static ObjCProtocols = [];
@@ -164,6 +169,7 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
   private _owner: WeakRef<NfcSessionInvalidator>;
   private resultCallback: (message: any) => void;
   private options?: NdefListenerOptions;
+  private writeMode:boolean = true;
 
   public static new(): NFCTagReaderSessionDelegateImpl {
     try {
@@ -188,59 +194,127 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
     console.log("tagReaderSessionDidDetectTags");
 
     var tag = tags[0];
+    //let uid = this.getTagUID(tag);
 
-    let uid = this.getTagUID(tag);
+    session.connectToTagCompletionHandler(tag, (error) => {
+      console.log("connectToTagCompletionHandler");
 
-    let writeTag = false;
-    if (writeTag) {
-      session.connectToTagCompletionHandler(tag, (error) => {
+      console.log(error);
+      if (error) {
+        console.log(error); 
+        session.invalidateSessionWithErrorMessage("Error connecting to tag.");
+        return;
+      }
+
+      const ndefTag: NFCNDEFTag = new interop.Reference<NFCNDEFTag>(interop.types.id, tag).value;
+
+      NFCNDEFTag.prototype.queryNDEFStatusWithCompletionHandler.call(ndefTag, (status: NFCNDEFStatus, number: number, error: NSError) => {
+        console.log("queryNDEFStatusWithCompletionHandler");
+
         if (error) {
-          console.log(error); session.invalidateSession();
+          console.log(error);
+          session.invalidateSessionWithErrorMessage("Error getting tag status.");
           return;
         }
 
-        const ndefTag: NFCNDEFTag = new interop.Reference<NFCNDEFTag>(interop.types.id, tag).value;
-
-        NFCNDEFTag.prototype.queryNDEFStatusWithCompletionHandler.call(ndefTag, (status: NFCNDEFStatus, number: number, error: NSError) => {
-          if (error) {
-            console.log(error);
-            return;
-          }
+        if (true) {
           this.writeNDEFTag(session, status, ndefTag);
-        });
+        } else {
+          /* just read tag */
+        }
       });
-    }
+    });
   }
 
   public writeNDEFTag(session: NFCReaderSession, status: NFCNDEFStatus, tag: NFCNDEFTag) {
+    console.log("writeNDEFTag");
+    console.log("Status: " + status);
 
-    console.log(status);
+    if (status == NFCNDEFStatus.NotSupported) {
+      session.invalidateSessionWithErrorMessage("Tag is not NDEF compliant.");
+    } else if (status === NFCNDEFStatus.ReadOnly) {
+      session.invalidateSessionWithErrorMessage("Tag is read only.");
+    } else if (status === NFCNDEFStatus.ReadWrite) {
 
-    if (status === NFCNDEFStatus.ReadWrite) {
+      /* input messages */
+      let txtRecords: Array<TextRecord> = [];
+      let txtRecord: TextRecord = { "text": "this is a test", "languageCode": "en" };
+      txtRecords.push(txtRecord);
 
-      let message: NFCNDEFMessage = NFCNDEFMessage.new();
-      let record = NFCNDEFPayload.new();
+      /* prepare message to write */
+      let records: NSMutableArray<NFCNDEFPayload> = NSMutableArray.new();
 
-      const content: NSString = NSString.stringWithString("test");
-      const nsData: NSData = content.dataUsingEncoding(NSUTF8StringEncoding);
+      txtRecords.forEach((textRecord) => {
+        let type: NSData = this.uint8ArrayToNSData([0x54]);
 
-      record.payload = nsData;
-      message.records = NSArray.arrayWithArray([record]);
+        let ids = [];
+        if (textRecord.id) {
+          for (let j = 0; j < textRecord.id.length; j++) {
+            ids.push(textRecord.id[j]);
+          }
+        }
+        let id: NSData = this.uint8ArrayToNSData(ids);
+
+        let langCode = textRecord.languageCode || "en";
+        let encoded = this.stringToBytes(langCode + textRecord.text);
+        encoded.unshift(langCode.length);
+
+        let payloads = [];
+        for (let n = 0; n < encoded.length; n++) {
+          payloads[n] = encoded[n];
+        }
+        const payload: NSData = this.uint8ArrayToNSData(payloads);
+
+        let record = NFCNDEFPayload.alloc().initWithFormatTypeIdentifierPayload(NFCTypeNameFormat.NFCWellKnown, type, id, payload);
+
+        records.addObject(record);
+      });
+
+      let message: NFCNDEFMessage = NFCNDEFMessage.alloc().initWithNDEFRecords(records);
+
+      console.log(message);
 
       NFCNDEFTag.prototype.writeNDEFCompletionHandler.call(tag, message, (error: NSError) => {
         if (error) {
           console.log(error);
+          session.invalidateSessionWithErrorMessage("Write failed.");
         } else {
-          session.alertMessage = "Wrote data";
+          session.alertMessage = "Wrote data to NFC tag.";
           session.invalidateSession();
         }
       });
     }
   }
 
+  private stringToBytes(input: string) {
+    let bytes = [];
+    for (let n = 0; n < input.length; n++) {
+      let c = input.charCodeAt(n);
+      if (c < 128) {
+        bytes[bytes.length] = c;
+      } else if ((c > 127) && (c < 2048)) {
+        bytes[bytes.length] = (c >> 6) | 192;
+        bytes[bytes.length] = (c & 63) | 128;
+      } else {
+        bytes[bytes.length] = (c >> 12) | 224;
+        bytes[bytes.length] = ((c >> 6) & 63) | 128;
+        bytes[bytes.length] = (c & 63) | 128;
+      }
+    }
+    return bytes;
+  }
+
+  uint8ArrayToNSData(array): NSData {
+    let data: NSMutableData = NSMutableData.alloc().initWithCapacity(array.count);
+    for (let item of array) {
+      data.appendBytesLength(new interop.Reference(interop.types.uint8, item), 1);
+    }
+    return data;
+  }
+
   tagReaderSessionDidInvalidateWithError(session: NFCTagReaderSession, error: NSError): void {
     console.log("tagReaderSessionDidInvalidateWithError");
-    this._owner.get().invalidateSession();
+    console.log(error);
   }
 
   getTagUID(tag: NFCTag): any {
@@ -329,6 +403,7 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
   }
 }
 
+/* NFCNDEFReaderSessionDelegate */
 class NFCNDEFReaderSessionDelegateImpl extends NSObject implements NFCNDEFReaderSessionDelegate {
   public static ObjCProtocols = [];
 

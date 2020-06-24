@@ -55,6 +55,7 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
         return;
       }
 
+      this.writeMode = false;
       this.shouldUseTagReaderSession = true;
       try {
         this.startScanSession(callback, {});
@@ -79,6 +80,7 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
         return;
       }
 
+      this.writeMode = false;
       this.shouldUseTagReaderSession = false;
       try {
         this.startScanSession(callback, options);

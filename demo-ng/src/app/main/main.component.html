@@ -11,6 +11,7 @@
     <Button text="clear tag listener" (tap)="doStopTagListener()" class="button" width="40%"></Button>-->
 
     <Button text="Write TAG" (tap)="doWriteText()" class="button" width="40%" height="80"></Button>
+    <Button text="Erase TAG" (tap)="doEraseTag()" class="button" backgroundColor="yellow" width="40%" height="80"></Button>
 
     <Label [text]="lastNdefDiscovered" class="message message-ndef" textWrap="true"></Label>
 </StackLayout>

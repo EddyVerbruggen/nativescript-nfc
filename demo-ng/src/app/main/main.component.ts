@@ -88,7 +88,7 @@ export class MainComponent extends observable.Observable implements OnInit {
             textRecords: [
                 {
                     id: [1],
-                    text: "Hello!"
+                    text: "Hello2"
                 }
             ]
         }).then(() => {

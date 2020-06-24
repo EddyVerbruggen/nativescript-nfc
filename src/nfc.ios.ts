@@ -112,12 +112,10 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
         this.writeMode = true;
         this.shouldUseTagReaderSession = false;
 
-        this.messageToWrite = NfcHelper.jsonToNdef(arg.textRecords);
+        this.messageToWrite = NfcHelper.jsonToNdefRecords(arg);
 
         this.startScanSession((data) => {
-          console.log("Write successful!");
-          console.log(data);
-          this.invalidateSession();
+          // TODO: fire callback event
         }, {
           stopAfterFirstRead: false,
           scanHint: "Hold near writable NFC tag to update."
@@ -132,7 +130,23 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
 
   public eraseTag(): Promise<any> {
     return new Promise((resolve, reject) => {
-      reject("Not available on iOS");
+      try {
+        this.writeMode = true;
+        this.shouldUseTagReaderSession = false;
+
+        this.messageToWrite = NfcHelper.ndefEmptyMessage();
+
+        this.startScanSession((data) => {
+          // TODO: fire callback event
+        }, {
+          stopAfterFirstRead: false,
+          scanHint: "Hold near writable NFC tag to erase."
+        });
+
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 
@@ -186,38 +200,47 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
 
 class NfcHelper {
 
-  public static jsonToNdef(txtRecords: Array<TextRecord>):NFCNDEFMessage {
+  public static ndefEmptyMessage(): NFCNDEFMessage {
+    let type: NSData = NfcHelper.uint8ArrayToNSData([]);
+    let id: NSData = NfcHelper.uint8ArrayToNSData([]);
+    const payload: NSData = NfcHelper.uint8ArrayToNSData([]);
+    let record = NFCNDEFPayload.alloc().initWithFormatTypeIdentifierPayload(NFCTypeNameFormat.Empty, type, id, payload);
+    let records: NSMutableArray<NFCNDEFPayload> = NSMutableArray.new();
+    records.addObject(record);
+    return NFCNDEFMessage.alloc().initWithNDEFRecords(records);
+  }
+
+  public static jsonToNdefRecords(arg: WriteTagOptions): NFCNDEFMessage {
     let records: NSMutableArray<NFCNDEFPayload> = NSMutableArray.new();
 
-    txtRecords.forEach((textRecord) => {
-      let type: NSData = NfcHelper.uint8ArrayToNSData([0x54]);
-
-      let ids = [];
-      if (textRecord.id) {
-        for (let j = 0; j < textRecord.id.length; j++) {
-          ids.push(textRecord.id[j]);
+    if (arg.textRecords !== null) {
+      arg.textRecords.forEach((textRecord) => {
+        let type: NSData = NfcHelper.uint8ArrayToNSData([0x54]);
+        let ids = [];
+        if (textRecord.id) {
+          for (let j = 0; j < textRecord.id.length; j++) {
+            ids.push(textRecord.id[j]);
+          }
         }
-      }
-      let id: NSData = NfcHelper.uint8ArrayToNSData(ids);
+        let id: NSData = NfcHelper.uint8ArrayToNSData(ids);
 
-      let langCode = textRecord.languageCode || "en";
-      let encoded = NfcHelper.stringToBytes(langCode + textRecord.text);
-      encoded.unshift(langCode.length);
+        let langCode = textRecord.languageCode || "en";
+        let encoded = NfcHelper.stringToBytes(langCode + textRecord.text);
+        encoded.unshift(langCode.length);
 
-      let payloads = [];
-      for (let n = 0; n < encoded.length; n++) {
-        payloads[n] = encoded[n];
-      }
-      const payload: NSData = NfcHelper.uint8ArrayToNSData(payloads);
+        let payloads = [];
+        for (let n = 0; n < encoded.length; n++) {
+          payloads[n] = encoded[n];
+        }
+        const payload: NSData = NfcHelper.uint8ArrayToNSData(payloads);
+        let record = NFCNDEFPayload.alloc().initWithFormatTypeIdentifierPayload(NFCTypeNameFormat.NFCWellKnown, type, id, payload);
+        records.addObject(record);
+      });
+    }
 
-      let record = NFCNDEFPayload.alloc().initWithFormatTypeIdentifierPayload(NFCTypeNameFormat.NFCWellKnown, type, id, payload);
+    // TODO: implement for URI records
 
-      records.addObject(record);
-    });
-
-    let message: NFCNDEFMessage = NFCNDEFMessage.alloc().initWithNDEFRecords(records);
-
-    return message;
+    return NFCNDEFMessage.alloc().initWithNDEFRecords(records);
   }
 
   public static ndefToJson(message: NFCNDEFMessage): NfcNdefData {
@@ -228,48 +251,6 @@ class NfcHelper {
     return {
       message: this.messageToJSON(message)
     };
-  }
-
-  public static getTagUID(tag: NFCTag): any {
-    let uid: NSData = null;
-    let type = "Unknown";
-
-    if (NFCTag.prototype.asNFCMiFareTag.call(tag) === tag) {
-      tag.type = NFCTagType.MiFare;
-      type = "MiFare";
-
-      let mifareTag: NFCMiFareTag = <NFCMiFareTag>NFCTag.prototype.asNFCMiFareTag.call(tag);
-
-      console.log(mifareTag); // OK: displays <NFCMiFareTag: 0x2809bda70>
-
-      uid = NSData.alloc().initWithData(mifareTag.identifier);
-
-      console.log(uid); // ISSUE: it displays {length = 0, bytes = 0x}
-
-      /* 
-      
-        Probably some more processing of uid is needed to convert from big-endian bytes to string:
-        https://stackoverflow.com/questions/46504035/little-endian-byte-order-ios-ble-scan-response
-        https://stackoverflow.com/questions/46518084/nativescript-get-string-from-interop-reference
-
-        let str = NSString.alloc().initWithDataEncoding(mifareTag.identifier, NSUTF16BigEndianStringEncoding);
-        console.log(str);
-
-      */
-    } else if (NFCTag.prototype.asNFCISO15693Tag.apply(tag) === tag) {
-      tag.type = NFCTagType.ISO15693;
-      type = "ISO15693";
-    } else if (NFCTag.prototype.asNFCISO7816Tag.apply(tag) === tag) {
-      tag.type = NFCTagType.ISO7816Compatible;
-      type = "NFCISO7816";
-    } else if (NFCTag.prototype.asNFCFeliCaTag.apply(tag) === tag) {
-      tag.type = NFCTagType.FeliCa;
-      type = "FeilCa";
-    }
-
-    console.log("Tag Type: " + type + " ( " + tag.type + " )");
-
-    return this.nsdataToHexArray(uid);
   }
 
   public static messageToJSON(message: NFCNDEFMessage): Array<NfcNdefRecord> {
@@ -435,7 +416,6 @@ class NFCTagReaderSessionDelegateImpl extends NSObject implements NFCTagReaderSe
     var tag = tags[0];
 
     console.log("Tag found: " + tag);
-    //let uid = NfcHelper.getTagUID(tag);
 
     session.connectToTagCompletionHandler(tag, (error) => {
       console.log("connectToTagCompletionHandler");
@@ -494,12 +474,12 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject implements NFCNDEFReader
   readerSessionDidDetectTags?(session: NFCNDEFReaderSession, tags: NSArray<NFCNDEFTag> | NFCNDEFTag[]): void {
     console.log("NFCNDEFReaderSessionDelegateImpl:readerSessionDidDetectTags");
 
-    if (this.caller.writeMode){
+    if (this.caller.writeMode) {
       let tag = tags[0];
 
       session.connectToTagCompletionHandler(tag, (error) => {
         console.log("connectToTagCompletionHandler");
-  
+
         if (error) {
           console.log(error);
           session.invalidateSessionWithErrorMessage("Error connecting to tag.");
@@ -519,7 +499,7 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject implements NFCNDEFReader
       setTimeout(() => this._owner.get().invalidateSession());
     }
 
-    if (!this.caller.writeMode){
+    if (!this.caller.writeMode) {
       const firstMessage = messages[0];
       // execute on the main thread with this trick
       this.resultCallback(NfcHelper.ndefToJson(firstMessage));
@@ -565,7 +545,7 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject implements NFCNDEFReader
     });
   }
 
-  public static writeNDEFTag(session: NFCReaderSession, status: NFCNDEFStatus, tag: NFCNDEFTag, message:NFCNDEFMessage) {
+  public static writeNDEFTag(session: NFCReaderSession, status: NFCNDEFStatus, tag: NFCNDEFTag, message: NFCNDEFMessage) {
     console.log("writeNDEFTag");
     console.log("Status: " + status);
 
@@ -581,6 +561,8 @@ class NFCNDEFReaderSessionDelegateImpl extends NSObject implements NFCNDEFReader
           console.log(error);
           session.invalidateSessionWithErrorMessage("Write failed.");
         } else {
+          // TODO: fire event for callback
+          
           session.alertMessage = "Wrote data to NFC tag.";
           session.invalidateSession();
         }

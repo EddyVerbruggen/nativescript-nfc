@@ -1,6 +1,5 @@
 {
   "rules": {
-    "prefer-const": "true",
     "class-name": true,
     "comment-format": [true, "check-space"],
     "indent": [true, "spaces"],

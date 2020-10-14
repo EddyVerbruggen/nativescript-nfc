@@ -1,4 +1,41 @@
-export const NfcUriProtocols = ["", "http://www.", "https://www.", "http://", "https://", "tel:", "mailto:", "ftp://anonymous:anonymous@", "ftp://ftp.", "ftps://", "sftp://", "smb://", "nfs://", "ftp://", "dav://", "news:", "telnet://", "imap:", "rtsp://", "urn:", "pop:", "sip:", "sips:", "tftp:", "btspp://", "btl2cap://", "btgoep://", "tcpobex://", "irdaobex://", "file://", "urn:epc:id:", "urn:epc:tag:", "urn:epc:pat:", "urn:epc:raw:", "urn:epc:", "urn:nfc:"];
+export const NfcUriProtocols = [
+  "",
+  "http://www.",
+  "https://www.",
+  "http://",
+  "https://",
+  "tel:",
+  "mailto:",
+  "ftp://anonymous:anonymous@",
+  "ftp://ftp.",
+  "ftps://",
+  "sftp://",
+  "smb://",
+  "nfs://",
+  "ftp://",
+  "dav://",
+  "news:",
+  "telnet://",
+  "imap:",
+  "rtsp://",
+  "urn:",
+  "pop:",
+  "sip:",
+  "sips:",
+  "tftp:",
+  "btspp://",
+  "btl2cap://",
+  "btgoep://",
+  "tcpobex://",
+  "irdaobex://",
+  "file://",
+  "urn:epc:id:",
+  "urn:epc:tag:",
+  "urn:epc:pat:",
+  "urn:epc:raw:",
+  "urn:epc:",
+  "urn:nfc:"
+];
 
 export interface NdefListenerOptions {
   /**
@@ -96,11 +133,16 @@ export interface NfcApi {
   /**
    * Set to null to remove the listener.
    */
-  setOnTagDiscoveredListener(callback: (data: NfcTagData) => void): Promise<any>;
+  setOnTagDiscoveredListener(
+    callback: (data: NfcTagData) => void
+  ): Promise<any>;
   /**
    * Set to null to remove the listener.
    */
-  setOnNdefDiscoveredListener(callback: (data: NfcNdefData) => void, options?: NdefListenerOptions): Promise<any>;
+  setOnNdefDiscoveredListener(
+    callback: (data: NfcNdefData) => void,
+    options?: NdefListenerOptions
+  ): Promise<any>;
 }
 
 // this was done to generate a nice API for our users
@@ -117,11 +159,16 @@ export class Nfc implements NfcApi {
     return undefined;
   }
 
-  setOnNdefDiscoveredListener(callback: (data: NfcNdefData) => void, options?: NdefListenerOptions): Promise<any> {
+  setOnNdefDiscoveredListener(
+    callback: (data: NfcNdefData) => void,
+    options?: NdefListenerOptions
+  ): Promise<any> {
     return undefined;
   }
 
-  setOnTagDiscoveredListener(callback: (data: NfcTagData) => void): Promise<any> {
+  setOnTagDiscoveredListener(
+    callback: (data: NfcTagData) => void
+  ): Promise<any> {
     return undefined;
   }
 

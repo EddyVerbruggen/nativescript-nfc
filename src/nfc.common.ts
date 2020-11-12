@@ -91,8 +91,8 @@ export interface OnTagDiscoveredOptions {
 export interface NfcApi {
   available(): Promise<boolean>;
   enabled(): Promise<boolean>;
-  writeTag(arg: WriteTagOptions): Promise<any>;
-  eraseTag(): Promise<any>;
+  writeTag(arg: WriteTagOptions, callback: (data: any) => void): Promise<any>;
+  eraseTag(callback: (data: any) => void): Promise<any>;
   /**
    * Set to null to remove the listener.
    */
@@ -113,7 +113,7 @@ export class Nfc implements NfcApi {
     return undefined;
   }
 
-  eraseTag(): Promise<any> {
+  eraseTag(callback: (data: any) => void): Promise<any> {
     return undefined;
   }
 
@@ -125,7 +125,7 @@ export class Nfc implements NfcApi {
     return undefined;
   }
 
-  writeTag(arg: WriteTagOptions): Promise<any> {
+  writeTag(arg: WriteTagOptions, callback: (data: any) => void): Promise<any> {
     return undefined;
   }
 }

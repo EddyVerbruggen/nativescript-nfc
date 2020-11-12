@@ -22,3 +22,4 @@ demo/platforms
 node_modules
 publish/src
 publish/package
+package-lock.json

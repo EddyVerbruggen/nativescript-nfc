@@ -58,7 +58,7 @@ export class MainComponent extends observable.Observable implements OnInit {
     public doStartNdefListener() {
 
         this.nfc.setOnNdefDiscoveredListener((data: NfcNdefData) => {
-            if (data.message) {
+            if (data && data.message) {
                 let tagMessages = [];
                 // data.message is an array of records, so:
                 data.message.forEach(record => {
@@ -84,37 +84,45 @@ export class MainComponent extends observable.Observable implements OnInit {
     }
 
     public doWriteText() {
+
+        var text = "Hello!";
+
         this.nfc.writeTag({
             textRecords: [
                 {
                     id: [1],
-                    text: "Hello3"
+                    text: text
                 }
             ]
-        }).then(() => {
-            this.set("lastNdefDiscovered", "Wrote text 'Hello!'");
+        }, (data) => {
+            this.set("lastNdefDiscovered", "Wrote text " + data);
+        }).then((result) => {
+            this.set("lastNdefDiscovered", "Writing text " + text);
         }, (err) => {
             console.log(err);
         });
     }
 
     public doWriteUri() {
+        var uri = "https://www.telerik.com";
         this.nfc.writeTag({
             uriRecords: [
                 {
                     id: [2, 5],
-                    uri: "https://www.telerik.com"
+                    uri: uri
                 }
             ]
-        }).then(() => {
-            this.set("lastNdefDiscovered", "Wrote uri 'https://www.telerik.com");
+        }, (data) => {
+            this.set("lastNdefDiscovered", "Wrote " + data);
+        }).then((result) => {
+            this.set("lastNdefDiscovered", "Writing " + uri);
         }, (err) => {
             console.log(err);
         });
     }
 
     public doEraseTag() {
-        this.nfc.eraseTag().then(() => {
+        this.nfc.eraseTag((result) => { }).then(() => {
             this.set("lastNdefDiscovered", "Tag erased");
         }, (err) => {
             console.log(err);

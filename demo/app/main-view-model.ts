@@ -64,8 +64,8 @@ export class HelloWorldModel extends observable.Observable {
       stopAfterFirstRead: true,
       scanHint: "Scan a tag, baby!"
     })
-        .then(() => this.set("lastNdefDiscovered", "Listening..."))
-        .catch(err => alert(err));
+      .then(() => this.set("lastNdefDiscovered", "Listening..."))
+      .catch(err => alert(err));
   }
 
   public doStopNdefListener() {
@@ -84,6 +84,8 @@ export class HelloWorldModel extends observable.Observable {
           text: "Hello!"
         }
       ]
+    }, (err) => {
+      this.set("lastNdefDiscovered", "Error " + err);
     }).then(() => {
       this.set("lastNdefDiscovered", "Wrote text 'Hello!'");
     }, (err) => {
@@ -99,6 +101,8 @@ export class HelloWorldModel extends observable.Observable {
           uri: "https://www.telerik.com"
         }
       ]
+    }, (err) => {
+      this.set("lastNdefDiscovered", "Error " + err);
     }).then(() => {
       this.set("lastNdefDiscovered", "Wrote uri 'https://www.telerik.com");
     }, (err) => {
@@ -107,8 +111,10 @@ export class HelloWorldModel extends observable.Observable {
   }
 
   public doEraseTag() {
-    this.nfc.eraseTag().then(() => {
-      this.set("lastNdefDiscovered", "Tag erased");
+    this.nfc.eraseTag((err) => {
+      this.set("lastNdefDiscovered", "Error " + err);
+    }).then(() => {
+      this.set("lastNdefDiscovered", "Erasing Tag");
     }, (err) => {
       console.log(err);
     });

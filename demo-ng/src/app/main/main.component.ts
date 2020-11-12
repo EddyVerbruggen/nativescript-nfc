@@ -94,8 +94,8 @@ export class MainComponent extends observable.Observable implements OnInit {
                     text: text
                 }
             ]
-        }, (data) => {
-            this.set("lastNdefDiscovered", "Wrote text " + data);
+        }, (err) => {
+            this.set("lastNdefDiscovered", "Error " + err);
         }).then((result) => {
             this.set("lastNdefDiscovered", "Writing text " + text);
         }, (err) => {
@@ -112,8 +112,8 @@ export class MainComponent extends observable.Observable implements OnInit {
                     uri: uri
                 }
             ]
-        }, (data) => {
-            this.set("lastNdefDiscovered", "Wrote " + data);
+        }, (err) => {
+            this.set("lastNdefDiscovered", "Error " + err);
         }).then((result) => {
             this.set("lastNdefDiscovered", "Writing " + uri);
         }, (err) => {
@@ -122,8 +122,10 @@ export class MainComponent extends observable.Observable implements OnInit {
     }
 
     public doEraseTag() {
-        this.nfc.eraseTag((result) => { }).then(() => {
-            this.set("lastNdefDiscovered", "Tag erased");
+        this.nfc.eraseTag((err) => {
+            this.set("lastNdefDiscovered", "Error " + err);
+        }).then(() => {
+            this.set("lastNdefDiscovered", "Erasing Tag");
         }, (err) => {
             console.log(err);
         });

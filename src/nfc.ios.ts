@@ -177,7 +177,7 @@ class NFCNDEFReaderSessionDelegateImpl
     }
 
     // execute on the main thread with this trick
-    this.resultCallback(this.ndefToJson(firstMessage));
+    this.resultCallback(NFCNDEFReaderSessionDelegateImpl.ndefToJson(firstMessage));
   }
 
   readerSessionDidDetectTags(
@@ -214,30 +214,30 @@ class NFCNDEFReaderSessionDelegateImpl
     this._owner.get().invalidateSession();
   }
 
-  private ndefToJson(message: NFCNDEFMessage): NfcNdefData {
+  private static ndefToJson(message: NFCNDEFMessage): NfcNdefData {
     if (message === null) {
       return null;
     }
 
     return {
-      message: this.messageToJSON(message)
+      message: NFCNDEFReaderSessionDelegateImpl.messageToJSON(message)
     };
   }
 
-  private messageToJSON(message: NFCNDEFMessage): Array<NfcNdefRecord> {
+  private static messageToJSON(message: NFCNDEFMessage): Array<NfcNdefRecord> {
     const result = [];
     for (let i = 0; i < message.records.count; i++) {
-      result.push(this.recordToJSON(message.records.objectAtIndex(i)));
+      result.push(NFCNDEFReaderSessionDelegateImpl.recordToJSON(message.records.objectAtIndex(i)));
     }
     return result;
   }
 
-  private recordToJSON(record: NFCNDEFPayload): NfcNdefRecord {
-    let payloadAsHexArray = this.nsdataToHexArray(record.payload);
-    let payloadAsString = this.nsdataToASCIIString(record.payload);
+  private static recordToJSON(record: NFCNDEFPayload): NfcNdefRecord {
+    let payloadAsHexArray = NFCNDEFReaderSessionDelegateImpl.nsdataToHexArray(record.payload);
+    let payloadAsString = NFCNDEFReaderSessionDelegateImpl.nsdataToASCIIString(record.payload);
     let payloadAsStringWithPrefix = payloadAsString;
-    const recordType = this.nsdataToHexArray(record.type);
-    const decimalType = this.hexToDec(recordType[0]);
+    const recordType = NFCNDEFReaderSessionDelegateImpl.nsdataToHexArray(record.type);
+    const decimalType = NFCNDEFReaderSessionDelegateImpl.hexToDec(recordType[0]);
     if (decimalType === 84) {
       let languageCodeLength: number = +payloadAsHexArray[0];
       payloadAsString = payloadAsStringWithPrefix.substring(
@@ -254,15 +254,15 @@ class NFCNDEFReaderSessionDelegateImpl
     return {
       tnf: record.typeNameFormat, // "typeNameFormat" (1 = well known) - see https://developer.apple.com/documentation/corenfc/nfctypenameformat?changes=latest_major&language=objc
       type: decimalType,
-      id: this.hexToDecArray(this.nsdataToHexArray(record.identifier)),
-      payload: this.hexToDecArray(payloadAsHexArray),
-      payloadAsHexString: this.nsdataToHexString(record.payload),
+      id: NFCNDEFReaderSessionDelegateImpl.hexToDecArray(NFCNDEFReaderSessionDelegateImpl.nsdataToHexArray(record.identifier)),
+      payload: NFCNDEFReaderSessionDelegateImpl.hexToDecArray(payloadAsHexArray),
+      payloadAsHexString: NFCNDEFReaderSessionDelegateImpl.nsdataToHexString(record.payload),
       payloadAsStringWithPrefix: payloadAsStringWithPrefix,
       payloadAsString: payloadAsString
     };
   }
 
-  private hexToDec(hex) {
+  private static hexToDec(hex) {
     if (hex === undefined) {
       return undefined;
     }
@@ -277,21 +277,21 @@ class NFCNDEFReaderSessionDelegateImpl
     return result;
   }
 
-  private buf2hexString(buffer) {
+  private static buf2hexString(buffer) {
     // buffer is an ArrayBuffer
     return Array.prototype.map
       .call(new Uint8Array(buffer), x => ("00" + x.toString(16)).slice(-2))
       .join("");
   }
 
-  private buf2hexArray(buffer) {
+  private static buf2hexArray(buffer) {
     // buffer is an ArrayBuffer
     return Array.prototype.map.call(new Uint8Array(buffer), x =>
       ("00" + x.toString(16)).slice(-2)
     );
   }
 
-  private buf2hexArrayNr(buffer) {
+  private static buf2hexArrayNr(buffer) {
     // buffer is an ArrayBuffer
     return Array.prototype.map.call(
       new Uint8Array(buffer),
@@ -299,7 +299,7 @@ class NFCNDEFReaderSessionDelegateImpl
     );
   }
 
-  private hex2a(hexx) {
+  private static hex2a(hexx) {
     const hex = hexx.toString(); // force conversion
     let str = "";
     for (let i = 0; i < hex.length; i += 2)
@@ -307,21 +307,21 @@ class NFCNDEFReaderSessionDelegateImpl
     return str;
   }
 
-  private nsdataToHexString(data): string {
+  private static nsdataToHexString(data): string {
     let b = interop.bufferFromData(data);
-    return this.buf2hexString(b);
+    return NFCNDEFReaderSessionDelegateImpl.buf2hexString(b);
   }
 
-  private nsdataToHexArray(data): Array<string> {
+  private static nsdataToHexArray(data): Array<string> {
     let b = interop.bufferFromData(data);
-    return this.buf2hexArray(b);
+    return NFCNDEFReaderSessionDelegateImpl.buf2hexArray(b);
   }
 
-  private nsdataToASCIIString(data): string {
-    return this.hex2a(this.nsdataToHexString(data));
+  private static nsdataToASCIIString(data): string {
+    return NFCNDEFReaderSessionDelegateImpl.hex2a(NFCNDEFReaderSessionDelegateImpl.nsdataToHexString(data));
   }
 
-  private hexToDecArray(hexArray): any {
+  private static hexToDecArray(hexArray): any {
     let resultArray = [];
     for (let i = 0; i < hexArray.length; i++) {
       let result = 0,

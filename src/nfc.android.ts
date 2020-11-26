@@ -1,19 +1,5 @@
-import {
-  AndroidActivityEventData,
-  AndroidActivityNewIntentEventData,
-  AndroidApplication,
-  Application,
-  Utils
-} from "@nativescript/core";
-import {
-  NdefListenerOptions,
-  NfcApi,
-  NfcNdefData,
-  NfcNdefRecord,
-  NfcTagData,
-  NfcUriProtocols,
-  WriteTagOptions
-} from "./nfc.common";
+import { AndroidActivityEventData, AndroidActivityNewIntentEventData, AndroidApplication, Application, Utils } from "@nativescript/core";
+import { NdefListenerOptions, NfcApi, NfcNdefData, NfcNdefRecord, NfcTagData, NfcUriProtocols, WriteTagOptions } from "./nfc.common";
 
 declare let Array: any;
 
@@ -417,7 +403,7 @@ export class Nfc implements NfcApi {
       let ndefClass = android.nfc.NdefMessage as any;
       let ndefMessage = new ndefClass(records);
 
-      let errorMessage = this.writeNdefMessage(ndefMessage, tag);
+      let errorMessage = Nfc.writeNdefMessage(ndefMessage, tag);
       if (errorMessage === null) {
         resolve();
       } else {
@@ -456,7 +442,7 @@ export class Nfc implements NfcApi {
         let ndefClass = android.nfc.NdefMessage as any;
         let ndefMessage = new ndefClass(records);
 
-        let errorMessage = this.writeNdefMessage(ndefMessage, tag);
+        let errorMessage = Nfc.writeNdefMessage(ndefMessage, tag);
         if (errorMessage === null) {
           resolve();
         } else {
@@ -508,7 +494,7 @@ export class Nfc implements NfcApi {
     }
   }
 
-  private writeNdefMessage(
+  private static writeNdefMessage(
     message: android.nfc.NdefMessage,
     tag: android.nfc.Tag
   ): string {
@@ -569,7 +555,7 @@ export class Nfc implements NfcApi {
         let textRecord = input.textRecords[i];
 
         let langCode = textRecord.languageCode || "en";
-        let encoded = this.stringToBytes(langCode + textRecord.text);
+        let encoded = Nfc.stringToBytes(langCode + textRecord.text);
         encoded.unshift(langCode.length);
 
         let tnf = android.nfc.NdefRecord.TNF_WELL_KNOWN; // 0x01;
@@ -589,9 +575,7 @@ export class Nfc implements NfcApi {
           payload[n] = encoded[n];
         }
 
-        let record = new android.nfc.NdefRecord(tnf, type, id, payload);
-
-        records[recordCounter++] = record;
+        records[recordCounter++] = new android.nfc.NdefRecord(tnf, type, id, payload);
       }
     }
 
@@ -612,7 +596,7 @@ export class Nfc implements NfcApi {
           prefix = "";
         }
 
-        let encoded = this.stringToBytes(uri.slice(prefix.length));
+        let encoded = Nfc.stringToBytes(uri.slice(prefix.length));
         // prepend protocol code
         encoded.unshift(NfcUriProtocols.indexOf(prefix));
 
@@ -633,15 +617,13 @@ export class Nfc implements NfcApi {
           payload[n] = encoded[n];
         }
 
-        let record = new android.nfc.NdefRecord(tnf, type, id, payload);
-
-        records[recordCounter++] = record;
+        records[recordCounter++] = new android.nfc.NdefRecord(tnf, type, id, payload);
       }
     }
     return records;
   }
 
-  private stringToBytes(input: string) {
+  private static stringToBytes(input: string) {
     let bytes = [];
     for (let n = 0; n < input.length; n++) {
       let c = input.charCodeAt(n);

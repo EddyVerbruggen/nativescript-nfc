@@ -1,6 +1,6 @@
 {
   "name": "nativescript-nfc",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "description": "NFC plugin for your NativeScript app",
   "main": "nfc",
   "typings": "index.d.ts",
@@ -11,7 +11,7 @@
     }
   },
   "scripts": {
-    "build": "npm i && tsc --skipLibCheck",
+    "build": "npm i && ts-patch install && tsc --skipLibCheck",
     "demo.ios": "npm run build && cd ../demo && tns run ios",
     "demo.ios.bundle": "npm run build && cd ../demo && tns run ios --bundle",
     "demo.android": "npm run build && cd ../demo && tns run android",
@@ -49,12 +49,14 @@
   "homepage": "https://github.com/EddyVerbruggen/nativescript-nfc",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "nativescript-dev-typescript": "~0.10.0",
-    "tns-core-modules": "~6.2.0",
-    "tns-platform-declarations": "~6.2.0",
-    "typescript": "~3.4.5",
+    "@nativescript/core": "~7.0.11",
+    "@nativescript/types": "~7.0.4",
+    "@nativescript/webpack": "~3.0.7",
+    "typescript": "~3.9.7",
     "rimraf": "^2.5.0",
-    "tslint": "^5.0.0"
+    "tslint": "^6.1.3",
+    "ts-node": "^9.0.0",
+    "ts-patch": "^1.3.0"
   },
   "bootstrapper": "nativescript-plugin-seed"
 }

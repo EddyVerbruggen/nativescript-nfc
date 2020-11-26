@@ -1,12 +1,9 @@
 # NativeScript NFC plugin
 
-[![Build Status][build-status]][build-url]
 [![NPM version][npm-image]][npm-url]
 [![Downloads][downloads-image]][npm-url]
 [![Twitter Follow][twitter-image]][twitter-url]
 
-[build-status]: https://travis-ci.org/EddyVerbruggen/nativescript-nfc.svg?branch=master
-[build-url]: https://travis-ci.org/EddyVerbruggen/nativescript-nfc
 [npm-image]: http://img.shields.io/npm/v/nativescript-nfc.svg
 [npm-url]: https://npmjs.org/package/nativescript-nfc
 [downloads-image]: http://img.shields.io/npm/dm/nativescript-nfc.svg

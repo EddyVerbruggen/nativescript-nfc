@@ -470,7 +470,7 @@ export class Nfc implements NfcApi {
           activity,
           0,
           this.intent,
-          0
+          33554432 // Constant for FLAG_IMMUTABLE
         );
 
         // The adapter must be started with the foreground activity.

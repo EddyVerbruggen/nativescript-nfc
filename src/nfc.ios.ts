@@ -8,6 +8,8 @@ import {
   WriteTagOptions
 } from "./nfc.common";
 
+import { Utils } from "@nativescript/core";
+
 export interface NfcSessionInvalidator {
   invalidateSession(): void;
 }
@@ -78,7 +80,9 @@ export class Nfc implements NfcApi, NfcSessionInvalidator {
               );
             } else {
               // execute on the main thread with this trick, so UI updates are not broken
-              Promise.resolve().then(() => callback(data));
+              Utils.mainThreadify(() => {
+                  callback(data)
+              })
             }
           },
           options
@@ -180,11 +184,11 @@ class NFCNDEFReaderSessionDelegateImpl
     this.resultCallback(NFCNDEFReaderSessionDelegateImpl.ndefToJson(firstMessage));
   }
 
-  readerSessionDidDetectTags(
+  /*readerSessionDidDetectTags(
     session: NFCNDEFReaderSession,
     tags: NSArray<NFCNDEFTag> | NFCNDEFTag[]
   ): void {
-    /*
+    
     // TODO prolly remember the tags for when the app wants to write to it (also: check Android impl for possibly sth similar)
     const nfcNdefTag = tags[0];
     session.connectToTagCompletionHandler(nfcNdefTag, (error: NSError) => {
@@ -203,8 +207,8 @@ class NFCNDEFReaderSessionDelegateImpl
         console.log(">> writeNDEFCompletionHandler, error: " + error);
       });
     }
-   */
-  }
+   
+  }*/
 
   // Called when the reader session becomes invalid due to the specified error
   readerSessionDidInvalidateWithError(
